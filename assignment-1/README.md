@@ -14,7 +14,7 @@ Below follows a regular expression that matches the string:
 
 ### 1.2
 
-![1.2](/assets/1-2.jpeg)
+![1.2](./assets/1-2.jpeg)
 
 ### 1.3
 
@@ -42,7 +42,7 @@ Note that special characters like `\` and `-` must be escaped in the regular exp
 
 ### 2.2
 
-![2.2](/assets/2-2.jpeg)
+![2.2](./assets/2-2.jpeg)
 
 ### 2.3
 
