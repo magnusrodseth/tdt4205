@@ -3,8 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-// TODO: Update to your state values
-#define NUMBER_OF_STATES 10
+#define NUMBER_OF_STATES 9
 #define START_STATE 0
 #define ACCEPT 8
 #define ERROR 9

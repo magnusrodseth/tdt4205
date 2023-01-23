@@ -59,14 +59,15 @@ The DFA was the easiest to invert to the "opposite" language, since it is a simp
 The following regular expression matches exactly one statement on the provided format:
 
 ```ts
-dx\=\-?([0-9]+)\ndy\=\-?([0-9]+)\ngo\n
+((d(x|y)\=\-?([0-9]+))|(go))\n
 ```
 
 Breaking the regular expression down, we have:
 
-- `dx\=\-?([0-9]+)` matches the first line, which is the x-coordinate of the destination. This allows an optional `-` sign, followed by one or more digits.
-- `dy\=\-?([0-9]+)` matches the second line, which is the y-coordinate of the destination. This allows an optional `-` sign, followed by one or more digits.
-- `go\n` matches the third line, which is the command to execute the movement.
+- `(d(x|y)\=\-?([0-9]+))` is the left group. It starts by matching `d`, followed by either `x` or `y`, followed by `=`, followed by an optional `-`, followed by one or more digits.
+- `(go)` is the right group. It matches the string `go`.
+- `|` is the union operator. It matches either the left group, or the right group.
+- `\n` matches the newline character.
 
 Note that special characters like `\` and `-` must be escaped in the regular expression.
 
