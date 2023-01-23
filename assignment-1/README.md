@@ -1,5 +1,9 @@
 # Assignment 1
 
+## Important to note
+
+When converting the Markdown to a PDF, the formatting of images is a bit off. Some images are rendered on a new page.
+
 ## 1 - Regular expressions, NFAs and DFAs
 
 ### 1.1
@@ -80,9 +84,6 @@ Note that special characters like `\` and `-` must be escaped in the regular exp
 Please see the attached implementation details. Run the application using:
 
 ```sh
-# Navigate to the project directory
-cd assignment-1
-
 # Compile and generate the executable
 make
 
