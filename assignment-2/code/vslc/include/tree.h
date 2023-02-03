@@ -5,9 +5,10 @@
 #include "nodetypes.h"
 
 /* This is the tree node structure, for the parse tree and abstract syntax tree */
-typedef struct node {
+typedef struct node
+{
     node_type_t type;
-    void* data; // For nodes that include extra data
+    void *data;            // For nodes that include extra data
     struct symbol *symbol; // Symbol table entry for nodes that declare symbols
     uint64_t n_children;
     struct node **children;
@@ -17,9 +18,9 @@ typedef struct node {
 extern node_t *root;
 
 // Export the node initializer function, needed by the parser
-void node_init ( node_t * nd, node_type_t type, void *data, uint64_t n_children, ... );
+void node_init(node_t *nd, node_type_t type, void *data, uint64_t n_children, ...);
 
-void print_syntax_tree ( void );
-void destroy_syntax_tree ( void );
+void print_syntax_tree(void);
+void destroy_syntax_tree(void);
 
 #endif // TREE_H
