@@ -1,0 +1,12 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+*.o
+y.tab.h
+scanner.c
+parser.c
+vslc
+
+*.ast
