@@ -27,32 +27,32 @@ int yyerror ( const char *error )
 
 %%
 program:
-      global_list {                                     // program -> global_list
-        root = malloc (sizeof(node_t));                 // root = PROGRAM
+    global_list {
+        root = malloc (sizeof(node_t));
         node_init (root, PROGRAM, NULL, 1, $1);         // $1 = GLOBAL_LIST
-      }
+    }
     ;
 
 global_list:
-      global {                                          // global_list -> global
+    global {
         $$ = malloc (sizeof(node_t));
         node_init ($$, GLOBAL_LIST, NULL, 1, $1);       // $1 = GLOBAL
-      }
-    | global_list global {                              // global_list -> global_list global
+    }
+    | global_list global {
         $$ = malloc (sizeof(node_t));
         node_init ($$, GLOBAL_LIST, NULL, 2, $1, $2);   // $1 = GLOBAL_LIST, $2 = GLOBAL
-      }
+    }
     ;
 
 global:
-      function {
+    function {
         $$ = malloc (sizeof(node_t));
         node_init ($$, GLOBAL, NULL, 1, $1);            // $1 = FUNCTION
-      }
+    }
     | declaration {
         $$ = malloc (sizeof(node_t));
         node_init ($$, GLOBAL, NULL, 1, $1);            // $1 = DECLARATION
-      }
+    }
     | array_declaration {
         $$ = malloc (sizeof(node_t));
         node_init ($$, GLOBAL, NULL, 1, $1);            // $1 = ARRAY_DECLARATION
@@ -60,11 +60,11 @@ global:
     ;
 
 declaration:
-      VAR variable_list {
+    VAR variable_list {
         $$ = malloc (sizeof(node_t));
         node_init ($$, DECLARATION, NULL, 2, $2, NULL); // $2 = VARIABLE_LIST
-      }
-      ;
+    }
+    ;
 
 variable_list:
     identifier {
@@ -92,11 +92,11 @@ array_indexing:
     ;
 
 function:
-      FUNC IDENTIFIER '(' parameter_list ')' statement {
+    FUNC IDENTIFIER '(' parameter_list ')' statement {
         $$ = malloc (sizeof(node_t));
         node_init ($$, FUNCTION, NULL, 4, $2, $4, NULL, $6); // $2 = IDENTIFIER_DATA, $4 = PARAMETER_LIST, $6 = STATEMENT
-      }
-      ;
+    }
+    ;
 
 parameter_list:
     variable_list {
@@ -257,20 +257,22 @@ relation:
     | expression '!' '=' expression {
         $$ = malloc (sizeof(node_t));
         node_init ($$, RELATION, NULL, 2, $1, $4); // $1 = EXPRESSION, $4 = EXPRESSION
-    } | expression '<' expression {
+    } 
+    | expression '<' expression {
         $$ = malloc (sizeof(node_t));
         node_init ($$, RELATION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
-    } | expression '>' expression {
+    } 
+    | expression '>' expression {
         $$ = malloc (sizeof(node_t));
         node_init ($$, RELATION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     ;
 
 for_statement:
-      FOR identifier IN expression '.' '.' expression DO statement {
-          $$ = malloc (sizeof(node_t));
-          node_init ($$, FOR_STATEMENT, NULL, 4, $2, $4, $7, $9); // $2 = IDENTIFIER_DATA, $4 = EXPRESSION, $7 = EXPRESSION, $9 = STATEMENT
-      }
+    FOR identifier IN expression '.' '.' expression DO statement {
+        $$ = malloc (sizeof(node_t));
+        node_init ($$, FOR_STATEMENT, NULL, 4, $2, $4, $7, $9); // $2 = IDENTIFIER_DATA, $4 = EXPRESSION, $7 = EXPRESSION, $9 = STATEMENT
+    }
     ;
 
 expression:
@@ -331,7 +333,8 @@ expression_list:
 argument_list:
     expression_list {
         $$ = $1;
-    } | {
+    }
+    | {
         $$ = malloc (sizeof(node_t));
         node_init ($$, ARGUMENT_LIST, NULL, 0);
     }
