@@ -341,7 +341,11 @@ expression:
     }
     | '-' expression %prec UMINUS {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 1, $2); // $2 = EXPRESSION
+
+        char *minus = malloc(sizeof(char));
+        minus[0] = '-';
+
+        node_init($$, EXPRESSION, minus, 1, $2); // $2 = EXPRESSION
     }
     | '(' expression ')' {
         $$ = malloc(sizeof(node_t));
@@ -361,7 +365,7 @@ expression:
     }
     | identifier '(' argument_list ')' {
         $$ = malloc(sizeof(node_t));
-        node_init($$, FUNCTION, NULL, 2, $1, $3); // $1 = IDENTIFIER, $3 = ARGUMENT_LIST
+        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = IDENTIFIER, $3 = ARGUMENT_LIST
     }
     ;
 
