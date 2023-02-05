@@ -25,6 +25,37 @@ int yyerror(const char *error)
 %token FUNC PRINT RETURN BREAK IF THEN ELSE WHILE FOR IN DO OPENBLOCK CLOSEBLOCK
 %token VAR NUMBER IDENTIFIER STRING
 
+// Declare the types of the nonterminals
+/* %type <node> global
+%type <node> global_list
+%type <node> declaration
+%type <node> variable_list
+%type <node> array_declaration
+%type <node> array_indexing
+%type <node> function
+%type <node> parameter_list
+%type <node> statement
+%type <node> assignment_statement
+%type <node> print_statement
+%type <node> return_statement
+%type <node> break_statement
+%type <node> if_statement
+%type <node> while_statement
+%type <node> for_statement
+%type <node> expression
+%type <node> expression_list
+%type <node> identifier
+%type <node> block
+%type <node> declaration_list
+%type <node> statement_list
+%type <node> print_list
+%type <node> print_item
+%type <node> relation
+%type <node> number
+%type <node> string
+%type <node> argument_list */
+
+
 %%
 program:
     global_list {
@@ -340,7 +371,12 @@ argument_list:
 identifier:
     IDENTIFIER {
         $$ = malloc(sizeof(node_t));
-        node_init($$, IDENTIFIER_DATA, $1, 0); // $1 = IDENTIFIER_DATA
+
+        char* identifier = malloc(strlen(yytext));
+        strncpy(identifier, yytext, strlen(yytext));
+        identifier[strlen(yytext)] = '\0';
+
+        node_init($$, IDENTIFIER_DATA, identifier, 0); // $1 = IDENTIFIER_DATA
     }
     ;
 
@@ -354,7 +390,12 @@ number:
 string:
     STRING {
         $$ = malloc(sizeof(node_t));
-        node_init($$, STRING_DATA, $1, 0); // $1 = STRING_DATA
+
+        char* string = malloc(strlen(yytext));
+        strncpy(string, yytext, strlen(yytext));
+        string[strlen(yytext)] = '\0';
+
+        node_init($$, STRING_DATA, string, 0);
     }
     ;
 %%
