@@ -91,10 +91,11 @@ array_indexing:
     }
     ;
 
+/* TODO: How do we map out the function? */
 function:
-    FUNC IDENTIFIER '(' parameter_list ')' statement {
+    FUNC identifier '(' parameter_list ')' statement {
         $$ = malloc (sizeof(node_t));
-        node_init ($$, FUNCTION, NULL, 4, $2, $4, NULL, $6); // $2 = IDENTIFIER_DATA, $4 = PARAMETER_LIST, $6 = STATEMENT
+        node_init ($$, FUNCTION, NULL, 3, $2, $4, $6); // $2 = IDENTIFIER_DATA, $4 = PARAMETER_LIST, $6 = STATEMENT
     }
     ;
 
@@ -103,10 +104,7 @@ parameter_list:
         $$ = malloc (sizeof(node_t));
         node_init ($$, PARAMETER_LIST, NULL, 1, $1); // $1 = VARIABLE_LIST
     }
-    | {
-        $$ = malloc (sizeof(node_t));
-        node_init ($$, PARAMETER_LIST, NULL, 0); // No parameters
-    }
+    | %empty
     ;
 
 statement:
@@ -296,9 +294,9 @@ expression:
         $$ = malloc (sizeof(node_t));
         node_init ($$, EXPRESSION, NULL, 1, $2); // $2 = EXPRESSION
     }
-    | expression {
+    /* | expression {
         $$ = $1;
-    }
+    } */
     | '(' expression ')' {
         $$ = $2;
     }
@@ -334,7 +332,7 @@ argument_list:
     expression_list {
         $$ = $1;
     }
-    | {
+    | %empty {
         $$ = malloc (sizeof(node_t));
         node_init ($$, ARGUMENT_LIST, NULL, 0);
     }
@@ -357,6 +355,7 @@ number:
 string:
     STRING {
         $$ = malloc (sizeof(node_t));
+        printf("string: %s", $1);        
         node_init ($$, STRING_DATA, $1, 0); // $1 = STRING_DATA
     }
     ;

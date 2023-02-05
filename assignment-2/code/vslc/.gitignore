@@ -10,3 +10,4 @@ parser.c
 vslc
 
 *.ast
+*.dSYM

@@ -1,6 +1,6 @@
 LEX=flex
 YACC=bison
-YFLAGS+=--defines=src/y.tab.h -o y.tab.c
+YFLAGS+=--defines=src/y.tab.h -o y.tab.c -Wcounterexamples
 CFLAGS+=-std=c99 -g -Isrc -Iinclude -D_POSIX_C_SOURCE=200809L -DYYSTYPE="node_t *"
 
 src/vslc: src/vslc.o src/parser.o src/scanner.o src/tree.o
