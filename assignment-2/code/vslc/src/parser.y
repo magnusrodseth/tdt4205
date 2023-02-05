@@ -341,7 +341,7 @@ expression:
     }
     | array_indexing {
         $$ = malloc(sizeof(node_t));
-        node_init($$, ARRAY_INDEXING, NULL, 1, $1); // $1 = ARRAY_INDEXING
+        node_init($$, EXPRESSION, NULL, 1, $1); // $1 = ARRAY_INDEXING
     }
     | identifier '(' argument_list ')' {
         $$ = malloc(sizeof(node_t));
@@ -386,6 +386,12 @@ identifier:
 number:
     NUMBER {
         $$ = malloc(sizeof(node_t));
+
+        // TODO: This gives segfault. How do we correctly parse the number?
+
+        // Parse number to int64_t
+        // char *endptr;
+        // int64_t number = strtoll(yytext, &endptr, 10);
 
         char* number = malloc(strlen(yytext));
         strncpy(number, yytext, strlen(yytext));

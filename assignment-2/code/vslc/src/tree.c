@@ -36,7 +36,7 @@ static void node_print(node_t *node, int nesting)
             node->type == EXPRESSION)
             printf("(%s)", (char *)node->data);
         else if (node->type == NUMBER_DATA)
-            printf("(%ld)", *((int64_t *)node->data));
+            printf("(%lld)", *((int64_t *)node->data));
         putchar('\n');
         for (int64_t i = 0; i < node->n_children; i++)
             node_print(node->children[i], nesting + 1);
