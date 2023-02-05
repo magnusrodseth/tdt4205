@@ -104,7 +104,10 @@ parameter_list:
         $$ = malloc (sizeof(node_t));
         node_init ($$, PARAMETER_LIST, NULL, 1, $1); // $1 = VARIABLE_LIST
     }
-    | %empty
+    | %empty {
+        $$ = malloc (sizeof(node_t));
+        node_init ($$, PARAMETER_LIST, NULL, 0);
+    }
     ;
 
 statement:
@@ -355,7 +358,6 @@ number:
 string:
     STRING {
         $$ = malloc (sizeof(node_t));
-        printf("string: %s", $1);        
         node_init ($$, STRING_DATA, $1, 0); // $1 = STRING_DATA
     }
     ;
