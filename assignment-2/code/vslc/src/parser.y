@@ -309,19 +309,20 @@ for_statement:
 expression:
     expression '+' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+
+        node_init($$, EXPRESSION, "+", 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '-' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, "-", 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '*' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, "*", 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '/' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, "/", 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | '-' expression %prec UMINUS {
         $$ = malloc(sizeof(node_t));
@@ -345,7 +346,7 @@ expression:
     }
     | identifier '(' argument_list ')' {
         $$ = malloc(sizeof(node_t));
-        node_init($$, FUNCTION, NULL, 2, $1, $3); // $1 = IDENTIFIER_DATA, $3 = ARGUMENT_LIST
+        node_init($$, FUNCTION, NULL, 2, $1, $3); // $1 = IDENTIFIER, $3 = ARGUMENT_LIST
     }
     ;
 
@@ -387,15 +388,8 @@ number:
     NUMBER {
         $$ = malloc(sizeof(node_t));
 
-        // TODO: This gives segfault. How do we correctly parse the number?
-
-        // Parse number to int64_t
-        // char *endptr;
-        // int64_t number = strtoll(yytext, &endptr, 10);
-
-        char* number = malloc(strlen(yytext));
-        strncpy(number, yytext, strlen(yytext));
-        number[strlen(yytext)] = '\0';
+        int64_t* number = malloc(sizeof(int64_t));
+        *number = strtoll(yytext, NULL, 10);
 
         node_init($$, NUMBER_DATA, number, 0);
     }
