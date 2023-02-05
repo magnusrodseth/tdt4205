@@ -218,7 +218,7 @@ print_item:
     }
     | string {
         $$ = malloc (sizeof(node_t));
-        node_init ($$, PRINT_ITEM, $1, 0); // $1 = STRING
+        node_init ($$, PRINT_ITEM, NULL, 1, $1); // $1 = STRING
     }
     ;
 
