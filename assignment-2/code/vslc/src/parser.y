@@ -93,7 +93,7 @@ global:
 declaration:
     VAR variable_list {
         $$ = malloc(sizeof(node_t));
-        node_init($$, DECLARATION, NULL, 2, $2, NULL); // $2 = VARIABLE_LIST
+        node_init($$, DECLARATION, NULL, 1, $2); // $2 = VARIABLE_LIST
     }
     ;
 
@@ -328,18 +328,20 @@ expression:
         node_init($$, EXPRESSION, NULL, 1, $2); // $2 = EXPRESSION
     }
     | '(' expression ')' {
-        $$ = $2;
+        $$ = malloc(sizeof(node_t));
+        node_init($$, EXPRESSION, NULL, 1, $2); // $2 = EXPRESSION
     }
     | number {
         $$ = malloc(sizeof(node_t));
-        node_init($$, NUMBER_DATA, $1, 0); // $1 = NUMBER_DATA
+        node_init($$, EXPRESSION, NULL, 1, $1); // $1 = NUMBER
     }
     | identifier {
         $$ = malloc(sizeof(node_t));
-        node_init($$, IDENTIFIER_DATA, $1, 0); // $1 = IDENTIFIER_DATA
+        node_init($$, EXPRESSION, NULL, 1, $1); // $1 = IDENTIFIER
     }
     | array_indexing {
-        $$ = $1;
+        $$ = malloc(sizeof(node_t));
+        node_init($$, ARRAY_INDEXING, NULL, 1, $1); // $1 = ARRAY_INDEXING
     }
     | identifier '(' argument_list ')' {
         $$ = malloc(sizeof(node_t));
@@ -360,7 +362,8 @@ expression_list:
 
 argument_list:
     expression_list {
-        $$ = $1;
+        $$ = malloc(sizeof(node_t));
+        node_init($$, ARGUMENT_LIST, NULL, 1, $1); // $1 = EXPRESSION_LIST
     }
     | %empty {
         $$ = malloc(sizeof(node_t));
@@ -376,14 +379,19 @@ identifier:
         strncpy(identifier, yytext, strlen(yytext));
         identifier[strlen(yytext)] = '\0';
 
-        node_init($$, IDENTIFIER_DATA, identifier, 0); // $1 = IDENTIFIER_DATA
+        node_init($$, IDENTIFIER_DATA, identifier, 0);
     }
     ;
 
 number:
     NUMBER {
         $$ = malloc(sizeof(node_t));
-        node_init($$, NUMBER_DATA, $1, 0); // $1 = NUMBER_DATA
+
+        char* number = malloc(strlen(yytext));
+        strncpy(number, yytext, strlen(yytext));
+        number[strlen(yytext)] = '\0';
+
+        node_init($$, NUMBER_DATA, number, 0);
     }
     ;
 
