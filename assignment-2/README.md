@@ -9,8 +9,17 @@ The deliverable for the theoretical questions can be found in the file [`theory/
 Please see the attached implementation details. Run the application using:
 
 ```sh
-# Compile and generate the executable
-make
+# Navigate to the code
+cd code/vslc
 
-TODO: Fill in this before delivering
+# Clean and compile source code
+make purge && make
+
+# Navigate to the directory of .vsl files used for validating
+cd vsl_programs
+
+# Clean and check the generated syntax tree (*.ast) with the expected one (*.ast.suggested)
+make clean && make check
 ```
+
+Observe that all the tests pass, and that no differences are found between the generated and expected syntax trees.
