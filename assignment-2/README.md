@@ -22,4 +22,10 @@ cd vsl_programs
 make clean && make check
 ```
 
-Observe that all the tests pass, and that no differences are found between the generated and expected syntax trees.
+**Observe that all the tests pass, and that no differences are found between the generated and expected syntax trees.**
+
+### From text in a file to an abstract syntax tree (AST)
+
+![From text in a file to an abstract syntax tree (AST)](./assets/overview.svg)
+
+Above, you can see a **very** simplified overview of the process of parsing a VSL program.
