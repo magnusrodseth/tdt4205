@@ -26,6 +26,6 @@ make clean && make check
 
 ### From text in a file to an abstract syntax tree (AST)
 
-![From text in a file to an abstract syntax tree (AST)](./assets/overview.svg)
+![From text in a file to an abstract syntax tree (AST)](./assets/overview.png)
 
 Above, you can see a **very** simplified overview of the process of parsing a VSL program.
