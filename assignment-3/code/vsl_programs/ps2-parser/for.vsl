@@ -1,0 +1,18 @@
+
+// This program uses a for loop to calculate the n-th fibonacci-number
+
+var fib[100]
+
+func main(n) begin
+    if n > 99 then begin
+        print "n is too large"
+        return -1
+    end
+
+    fib[0] := 0
+    fib[1] := 1
+    for i in 2..n do
+        fib[i] := fib[i-1] + fib[i-2]
+
+    print "Fibonacci-number ", n, " is ", fib[n]
+end

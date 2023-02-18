@@ -1,0 +1,21 @@
+
+var a, b
+var arr[10]
+
+func main() begin
+    var A, B, C, D
+    var X, Y
+
+    print "Hello", "World"
+
+    A := B+C+D
+
+    if A < B then
+        A := A + 1
+
+    A := another(A, B)
+end
+
+func another(x, y) begin
+    return x + y
+end
