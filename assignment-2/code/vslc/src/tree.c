@@ -7,9 +7,7 @@ node_t *root;
 
 // Tasks
 static void node_print(node_t *node, int nesting);
-
 static void node_finalize(node_t *discard);
-
 static void destroy_subtree(node_t *discard);
 
 /* External interface */

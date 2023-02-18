@@ -257,43 +257,23 @@ for_statement:
 expression:
     expression '+' expression {
         $$ = malloc(sizeof(node_t));
-
-        char *plus = malloc(sizeof(char));
-        plus[0] = '+';
-
-        node_init($$, EXPRESSION, plus, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, strdup("+"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '-' expression {
         $$ = malloc(sizeof(node_t));
-
-        char *minus = malloc(sizeof(char));
-        minus[0] = '-';
-
-        node_init($$, EXPRESSION, minus, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, strdup("-"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '*' expression {
         $$ = malloc(sizeof(node_t));
-
-        char *times = malloc(sizeof(char));
-        times[0] = '*';
-
-        node_init($$, EXPRESSION, times, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, strdup("*"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '/' expression {
         $$ = malloc(sizeof(node_t));
-
-        char *division = malloc(sizeof(char));
-        division[0] = '/';
-
-        node_init($$, EXPRESSION, division, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, EXPRESSION, strdup("/"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | '-' expression %prec UMINUS {
         $$ = malloc(sizeof(node_t));
-
-        char *minus = malloc(sizeof(char));
-        minus[0] = '-';
-
-        node_init($$, EXPRESSION, minus, 1, $2); // $2 = EXPRESSION
+        node_init($$, EXPRESSION, strdup("-"), 1, $2); // $2 = EXPRESSION
     }
     | '(' expression ')' {
         $$ = malloc(sizeof(node_t));

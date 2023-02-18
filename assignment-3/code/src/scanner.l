@@ -10,26 +10,42 @@
 WHITESPACE [\ \t\v\r\n]
 COMMENT \/\/[^\n]+
 QUOTED \"([^\"\n]|\\\")*\"
+FUNC func
+BEGIN begin
+END end
+RETURN return
+PRINT print
+BREAK break
+IF if
+THEN then
+ELSE else
+FOR for
+IN in
+WHILE while
+DO do
+VAR var
+NUMBER [0-9]+
+IDENTIFIER [a-zA-Z_][a-zA-Z0-9_]*
+
 %%
 {WHITESPACE}+           { /* Eliminate whitespace */ }
 {COMMENT}               { /* Eliminate comments */ }
-func                    { return FUNC; }
-print                   { return PRINT; }
-return                  { return RETURN; }
-break                   { return BREAK; }
-if                      { return IF; }
-then                    { return THEN; }
-else                    { return ELSE; }
-while                   { return WHILE; }
-for                     { return FOR; }
-in                      { return IN; }
-do                      { return DO; }
-begin                   { return OPENBLOCK; }
-end                     { return CLOSEBLOCK; }
-var                     { return VAR; }
-[0-9]+                  { return NUMBER; }
-[A-Za-z_][0-9A-Za-z_]*  { return IDENTIFIER; }
 {QUOTED}                { return STRING; }
-  /* Unknown chars get returned as single char tokens */
+{FUNC}                  { return FUNC; }
+{BEGIN}                 { return OPENBLOCK; }
+{END}                   { return CLOSEBLOCK; }
+{RETURN}                { return RETURN; }
+{PRINT}                 { return PRINT; }
+{BREAK}                 { return BREAK; }
+{IF}                    { return IF; }
+{THEN}                  { return THEN; }
+{ELSE}                  { return ELSE; }
+{FOR}                   { return FOR; }
+{IN}                    { return IN; }
+{WHILE}                 { return WHILE; }
+{DO}                    { return DO; }
+{VAR}                   { return VAR; }
+{NUMBER}                { return NUMBER; }
+{IDENTIFIER}            { return IDENTIFIER; }
 .                       { return yytext[0]; }
 %%

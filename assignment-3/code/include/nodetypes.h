@@ -18,16 +18,22 @@
 #ifdef NODETYPES_IMPLEMENTATION
 #define NODELIST_BEGIN const char *node_strings[] = {
 #define NODE(name) #name
-#define NODELIST_END };
+#define NODELIST_END \
+    }                \
+    ;
 #else
-#define NODELIST_BEGIN typedef enum {
+#define NODELIST_BEGIN typedef enum \
+{
 #define NODE(name) name
-#define NODELIST_END , _NODE_COUNT } node_type_t; \
-extern const char *node_strings[_NODE_COUNT];
+#define NODELIST_END \
+    , _NODE_COUNT    \
+    }                \
+    node_type_t;     \
+    extern const char *node_strings[_NODE_COUNT];
 #endif // NODETYPES_IMPLEMENTATION
 
 NODELIST_BEGIN
-    NODE(PROGRAM),
+NODE(PROGRAM),
     NODE(GLOBAL_LIST),
     NODE(GLOBAL),
     NODE(DECLARATION),
@@ -57,7 +63,7 @@ NODELIST_BEGIN
     NODE(IDENTIFIER_DATA),
     NODE(NUMBER_DATA),
     NODE(STRING_DATA)
-NODELIST_END
+        NODELIST_END
 
 #undef NODELIST_BEGIN
 #undef NODE
