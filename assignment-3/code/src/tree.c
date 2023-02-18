@@ -134,11 +134,12 @@ static node_t *simplify_tree(node_t *node) {
         case PROGRAM:
         case GLOBAL:
         case PRINT_ITEM:
+        case STATEMENT:
             return replace_with_child(node);
 
-        // TODO: Flatten lists
         case VARIABLE_LIST:
         case PRINT_LIST:
+        case STATEMENT_LIST:
             return flatten_list(node);
 
         case PRINT_STATEMENT:
@@ -175,6 +176,12 @@ static node_t *simplify_tree(node_t *node) {
     } while (false)
 #define FOR_END_VARIABLE "__FOR_END__"
 
+/**
+ * @brief Replaces a node with its only child, letting the child take over the parent's position.
+ *
+ * @param node is the node to be replaced.
+ * @return node_t* the root of the new subtree.
+ */
 static node_t *replace_with_child(node_t *node) {
     assert(node->n_children == 1);
     node_t *child = node->children[0];
@@ -191,6 +198,11 @@ static node_t *squash_child(node_t *node) {
 
     // Link child's children to node
     node_t *child = node->children[0];
+
+    if (child->n_children == 0) {
+        return node;
+    }
+
     node->children = realloc(node->children, sizeof(node_t *) * child->n_children);
     for (uint64_t i = 0; i < child->n_children; i++) {
         node->children[i] = child->children[i];
@@ -210,27 +222,23 @@ static node_t *flatten_list(node_t *node) {
     }
 
     if (node->n_children == 1) {
-        return node->children[0];
+        return replace_with_child(node);
     }
 
     node_t *left = node->children[0];
     node_t *right = node->children[1];
 
-    // Recursively flatten the left side
-    left = flatten_list(left);
+    if (left->type == node->type) {
+        // Flatten left child
+        node->children = realloc(node->children, sizeof(node_t *) * (left->n_children + 1));
+        for (uint64_t i = 0; i < left->n_children; i++) {
+            node->children[i] = left->children[i];
+        }
+        node->children[left->n_children] = right;
+        node->n_children = left->n_children + 1;
 
-    // Add left's children to node
-    node->children = realloc(node->children, sizeof(node_t *) * (left->n_children + 1));
-    for (uint64_t i = 0; i < left->n_children; i++) {
-        node->children[i] = left->children[i];
+        node_finalize(left);
     }
-
-    // Add right to node
-    node->children[left->n_children] = right;
-    node->n_children = left->n_children + 1;
-
-    // Free up the memory used by the left node
-    node_finalize(left);
 
     return node;
 }
