@@ -141,7 +141,6 @@ static node_t *simplify_tree(node_t *node) {
         case PRINT_LIST:
             return flatten_list(node);
 
-        // TODO: Revisit this after completing flattening, and check if it really is correct
         case PRINT_STATEMENT:
         case DECLARATION:
         case PARAMETER_LIST:
@@ -190,9 +189,16 @@ static node_t *squash_child(node_t *node) {
         return node;
     }
 
+    // Link child's children to node
     node_t *child = node->children[0];
-    node_finalize(node);
-    node = child;
+    node->children = realloc(node->children, sizeof(node_t *) * child->n_children);
+    for (uint64_t i = 0; i < child->n_children; i++) {
+        node->children[i] = child->children[i];
+    }
+    node->n_children = child->n_children;
+
+    node_finalize(child);
+
     return node;
 }
 
