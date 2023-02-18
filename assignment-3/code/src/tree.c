@@ -12,6 +12,8 @@ static void node_finalize(node_t *discard);
 static void destroy_subtree(node_t *discard);
 static node_t *simplify_tree(node_t *node);
 static node_t *replace_with_child(node_t *node);
+static node_t *squash_child(node_t *node);
+static node_t *flatten_list(node_t *node);
 static node_t *constant_fold_expression(node_t *node);
 static node_t *replace_for_statement(node_t *for_node);
 
@@ -139,22 +141,24 @@ static node_t *simplify_tree(node_t *node)
 
     switch (node->type)
     {
-        // TODO: Task 2.1
-        // Eliminate nodes of purely syntactic value.
-        // These nodes only have one child, and carry no semantic value.
-
         // For nodes that only serve as a wrapper for a (optional) node below,
         // you may squash the child and take over its children instead.
 
         // These nodes have no semantic value, and can be replaced with their children
     case PROGRAM:
     case GLOBAL:
+    case PRINT_ITEM:
         return replace_with_child(node);
 
-    // TODO: Task 2.2
-    // Flatten linked list structures.
-    // Any list node with two children, has a list node to the left, and an element to the right.
-    // We return the left list node, but with the right node appended to its list
+    // TODO: Revisit this after completing flattening, and check if it really is correct
+    case PRINT_STATEMENT:
+    case DECLARATION:
+    case PARAMETER_LIST:
+        return squash_child(node);
+
+    // TODO: Flatten lists
+    case VARIABLE_LIST:
+        return flatten_list(node);
 
     // Do contstant folding, if possible
     // Also prunes expressions that are just wrapping atomic expressions
@@ -186,12 +190,66 @@ static node_t *simplify_tree(node_t *node)
     } while (false)
 #define FOR_END_VARIABLE "__FOR_END__"
 
+/**
+ * @brief Replaces a parent node with its child.
+ *
+ * @param node is the parent node of the child that is to be replaced
+ * @return the root of the new subtree
+ */
 static node_t *replace_with_child(node_t *node)
 {
     assert(node->n_children == 1);
     node_t *child = node->children[0];
     node_finalize(node);
     return child;
+}
+
+/**
+ * @brief Squashes the child of a node into the node, stealing its children.
+ *
+ * This is used for nodes that only serve as a wrapper for a (optional) node.
+ *
+ * @param node is the parent node of the child that is to be squashed
+ * @return the root of the new subtree
+ */
+static node_t *squash_child(node_t *node)
+{
+    assert(node->n_children <= 1);
+    if (node->n_children == 0)
+    {
+        return node;
+    }
+
+    node_t *child = node->children[0];
+    node_finalize(node);
+    node = child;
+    return node;
+}
+
+/**
+ * @brief Flattens a linked list structure.
+ *
+ * Flattens a linked list of nodes into one list node, with all the children.
+ * Any list node with two children has a list node to the left and an element to the right.
+ * We return the left list node, but with the right node appended to its list.
+ *
+ * @param node is the list node to be flattened
+ * @return the root of the new subtree
+ */
+static node_t *flatten_list(node_t *node)
+{
+    assert(node->n_children == 2);
+    node_t *left = node->children[0];
+    node_t *right = node->children[1];
+    node_finalize(node);
+    node = left;
+
+    // Add child to the list node
+    node->children = realloc(node->children, sizeof(node_t *) * (node->n_children + 1));
+    node->children[node->n_children] = right;
+    node->n_children++;
+
+    return node;
 }
 
 static node_t *constant_fold_expression(node_t *node)

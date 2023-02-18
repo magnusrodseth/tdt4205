@@ -11,3 +11,5 @@ vslc
 
 *.ast
 *.dSYM
+
+run.sh
