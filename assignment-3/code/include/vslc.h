@@ -1,11 +1,11 @@
 #ifndef VSLC_H
 #define VSLC_H
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include <stdarg.h>
 
 /* Definition of the tree node type, and functions for handling the parse tree */
 #include "tree.h"
@@ -16,4 +16,4 @@ int yyparse();
 /* A "hidden" cleanup function in flex */
 int yylex_destroy();
 
-#endif // VSLC_H
+#endif  // VSLC_H

@@ -2,14 +2,14 @@
 #define TREE_H
 
 #include <stdint.h>
+
 #include "nodetypes.h"
 
 /* This is the tree node structure, for the parse tree and abstract syntax tree */
-typedef struct node
-{
+typedef struct node {
     node_type_t type;
-    void *data;            // For nodes that include extra data
-    struct symbol *symbol; // Symbol table entry for nodes that declare symbols
+    void *data;             // For nodes that include extra data
+    struct symbol *symbol;  // Symbol table entry for nodes that declare symbols
     uint64_t n_children;
     struct node **children;
 } node_t;
@@ -28,4 +28,4 @@ void destroy_syntax_tree(void);
 // Implemented in graphviz_output.c
 void graphviz_node_print(node_t *root);
 
-#endif // TREE_H
+#endif  // TREE_H

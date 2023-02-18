@@ -22,15 +22,14 @@
     }                \
     ;
 #else
-#define NODELIST_BEGIN typedef enum \
-{
+#define NODELIST_BEGIN typedef enum {
 #define NODE(name) name
 #define NODELIST_END \
     , _NODE_COUNT    \
     }                \
     node_type_t;     \
     extern const char *node_strings[_NODE_COUNT];
-#endif // NODETYPES_IMPLEMENTATION
+#endif  // NODETYPES_IMPLEMENTATION
 
 NODELIST_BEGIN
 NODE(PROGRAM),
@@ -77,4 +76,4 @@ NODE(PROGRAM),
 #include "nodetypes.h"
 #endif
 
-#endif // NODETYPES_H
+#endif  // NODETYPES_H

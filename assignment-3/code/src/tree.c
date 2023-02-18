@@ -1,10 +1,18 @@
 #define NODETYPES_IMPLEMENTATION
-#include <stdlib.h>
 #include <assert.h>
+#include <stdlib.h>
 #include <vslc.h>
 
 /* Global root for parse tree and abstract syntax tree */
 node_t *root;
+
+typedef enum ArithmeticOperator {
+    ADD,
+    SUBTRACT,
+    MULTIPLY,
+    DIVIDE,
+    NONE
+} ArithmeticOperator;
 
 // Tasks
 static void node_print(node_t *node, int nesting);
@@ -14,32 +22,30 @@ static node_t *simplify_tree(node_t *node);
 static node_t *replace_with_child(node_t *node);
 static node_t *squash_child(node_t *node);
 static node_t *flatten_list(node_t *node);
+static bool all_children_are_numbers(node_t *node);
+static ArithmeticOperator string_to_arithmetic_operator(char *string);
 static node_t *constant_fold_expression(node_t *node);
 static node_t *replace_for_statement(node_t *for_node);
 
 /* External interface */
-void print_syntax_tree()
-{
+void print_syntax_tree() {
     if (getenv("GRAPHVIZ_OUTPUT") != NULL)
         graphviz_node_print(root);
     else
         node_print(root, 0);
 }
 
-void simplify_syntax_tree(void)
-{
+void simplify_syntax_tree(void) {
     root = simplify_tree(root);
 }
 
-void destroy_syntax_tree(void)
-{
+void destroy_syntax_tree(void) {
     destroy_subtree(root);
     root = NULL;
 }
 
 /* Initialize a node with type, data, and children */
-void node_init(node_t *node, node_type_t type, void *data, uint64_t n_children, ...)
-{
+void node_init(node_t *node, node_type_t type, void *data, uint64_t n_children, ...) {
     node->type = type;
     node->data = data;
     node->n_children = n_children;
@@ -49,25 +55,21 @@ void node_init(node_t *node, node_type_t type, void *data, uint64_t n_children, 
     va_start(args, n_children);
     node->children = malloc(n_children * sizeof(node_t *));
 
-    for (int i = 0; i < n_children; i++)
-    {
+    for (int i = 0; i < n_children; i++) {
         node->children[i] = va_arg(args, node_t *);
     }
 
     va_end(args);
 
-    if (root == NULL)
-    {
+    if (root == NULL) {
         root = node;
     }
 }
 
 /* Inner workings */
 /* Prints out the given node and all its children recursively */
-static void node_print(node_t *node, int nesting)
-{
-    if (node != NULL)
-    {
+static void node_print(node_t *node, int nesting) {
+    if (node != NULL) {
         printf("%*s%s", nesting, "", node_strings[node->type]);
         if (node->type == IDENTIFIER_DATA ||
             node->type == STRING_DATA ||
@@ -79,26 +81,21 @@ static void node_print(node_t *node, int nesting)
         putchar('\n');
         for (int64_t i = 0; i < node->n_children; i++)
             node_print(node->children[i], nesting + 1);
-    }
-    else
+    } else
         printf("%*s%p\n", nesting, "", node);
 }
 
 /* Frees the memory owned by the given node, but does not touch its children */
-static void node_finalize(node_t *discard)
-{
-    if (discard->data != NULL)
-    {
+static void node_finalize(node_t *discard) {
+    if (discard->data != NULL) {
         free(discard->data);
     }
 
-    if (discard->symbol != NULL)
-    {
+    if (discard->symbol != NULL) {
         free(discard->symbol);
     }
 
-    if (discard->children != NULL)
-    {
+    if (discard->children != NULL) {
         free(discard->children);
     }
 
@@ -106,32 +103,26 @@ static void node_finalize(node_t *discard)
 }
 
 /* Recursively frees the memory owned by the given node, and all its children */
-static void destroy_subtree(node_t *discard)
-{
-    if (discard->n_children == 0)
-    {
+static void destroy_subtree(node_t *discard) {
+    if (discard->n_children == 0) {
         node_finalize(discard);
         return;
     }
 
-    for (int i = 0; i < discard->n_children; i++)
-    {
+    for (int i = 0; i < discard->n_children; i++) {
         destroy_subtree(discard->children[i]);
     }
 
     node_finalize(discard);
 
-    if (discard == root)
-    {
+    if (discard == root) {
         root = NULL;
     }
 }
 
 /* Recursive function to convert a parse tree into an abstract syntax tree */
-static node_t *simplify_tree(node_t *node)
-{
-    if (node == NULL)
-    {
+static node_t *simplify_tree(node_t *node) {
+    if (node == NULL) {
         return NULL;
     }
 
@@ -139,37 +130,33 @@ static node_t *simplify_tree(node_t *node)
     for (uint64_t i = 0; i < node->n_children; i++)
         node->children[i] = simplify_tree(node->children[i]);
 
-    switch (node->type)
-    {
-        // For nodes that only serve as a wrapper for a (optional) node below,
-        // you may squash the child and take over its children instead.
+    switch (node->type) {
+        case PROGRAM:
+        case GLOBAL:
+        case PRINT_ITEM:
+            return replace_with_child(node);
 
-        // These nodes have no semantic value, and can be replaced with their children
-    case PROGRAM:
-    case GLOBAL:
-    case PRINT_ITEM:
-        return replace_with_child(node);
+        // TODO: Flatten lists
+        case VARIABLE_LIST:
+        case PRINT_LIST:
+            return flatten_list(node);
 
-    // TODO: Revisit this after completing flattening, and check if it really is correct
-    case PRINT_STATEMENT:
-    case DECLARATION:
-    case PARAMETER_LIST:
-        return squash_child(node);
+        // TODO: Revisit this after completing flattening, and check if it really is correct
+        case PRINT_STATEMENT:
+        case DECLARATION:
+        case PARAMETER_LIST:
+            return squash_child(node);
 
-    // TODO: Flatten lists
-    case VARIABLE_LIST:
-        return flatten_list(node);
+        // Do contstant folding, if possible
+        // Also prunes expressions that are just wrapping atomic expressions
+        case EXPRESSION:
+            return constant_fold_expression(node);
 
-    // Do contstant folding, if possible
-    // Also prunes expressions that are just wrapping atomic expressions
-    case EXPRESSION:
-        return constant_fold_expression(node);
+        case FOR_STATEMENT:
+            return replace_for_statement(node);
 
-    case FOR_STATEMENT:
-        return replace_for_statement(node);
-
-    default:
-        break;
+        default:
+            break;
     }
 
     return node;
@@ -182,41 +169,24 @@ static node_t *simplify_tree(node_t *node)
 // After an IDENTIFIER_NODE has been added to the tree, it can't be added again
 // This macro replaces the given variable with a new node, containting a copy of the data
 #define DUPLICATE_VARIABLE(variable)                         \
-    do                                                       \
-    {                                                        \
+    do {                                                     \
         char *identifier = strdup(variable->data);           \
         variable = malloc(sizeof(node_t));                   \
         node_init(variable, IDENTIFIER_DATA, identifier, 0); \
     } while (false)
 #define FOR_END_VARIABLE "__FOR_END__"
 
-/**
- * @brief Replaces a parent node with its child.
- *
- * @param node is the parent node of the child that is to be replaced
- * @return the root of the new subtree
- */
-static node_t *replace_with_child(node_t *node)
-{
+static node_t *replace_with_child(node_t *node) {
     assert(node->n_children == 1);
     node_t *child = node->children[0];
     node_finalize(node);
     return child;
 }
 
-/**
- * @brief Squashes the child of a node into the node, stealing its children.
- *
- * This is used for nodes that only serve as a wrapper for a (optional) node.
- *
- * @param node is the parent node of the child that is to be squashed
- * @return the root of the new subtree
- */
-static node_t *squash_child(node_t *node)
-{
+static node_t *squash_child(node_t *node) {
     assert(node->n_children <= 1);
-    if (node->n_children == 0)
-    {
+
+    if (node->n_children == 0) {
         return node;
     }
 
@@ -226,53 +196,96 @@ static node_t *squash_child(node_t *node)
     return node;
 }
 
-/**
- * @brief Flattens a linked list structure.
- *
- * Flattens a linked list of nodes into one list node, with all the children.
- * Any list node with two children has a list node to the left and an element to the right.
- * We return the left list node, but with the right node appended to its list.
- *
- * @param node is the list node to be flattened
- * @return the root of the new subtree
- */
-static node_t *flatten_list(node_t *node)
-{
-    assert(node->n_children == 2);
+static node_t *flatten_list(node_t *node) {
+    assert(node->n_children <= 2);
+
+    if (node->n_children == 0) {
+        return node;
+    }
+
+    if (node->n_children == 1) {
+        return node->children[0];
+    }
+
     node_t *left = node->children[0];
     node_t *right = node->children[1];
-    node_finalize(node);
-    node = left;
 
-    // Add child to the list node
-    node->children = realloc(node->children, sizeof(node_t *) * (node->n_children + 1));
-    node->children[node->n_children] = right;
-    node->n_children++;
+    // Recursively flatten the left side
+    left = flatten_list(left);
+
+    // Add left's children to node
+    node->children = realloc(node->children, sizeof(node_t *) * (left->n_children + 1));
+    for (uint64_t i = 0; i < left->n_children; i++) {
+        node->children[i] = left->children[i];
+    }
+
+    // Add right to node
+    node->children[left->n_children] = right;
+    node->n_children = left->n_children + 1;
+
+    // Free up the memory used by the left node
+    node_finalize(left);
 
     return node;
 }
 
-static node_t *constant_fold_expression(node_t *node)
-{
+static bool all_children_are_numbers(node_t *node) {
+    for (uint64_t i = 0; i < node->n_children; i++) {
+        if (node->children[i]->type != NUMBER_DATA) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static ArithmeticOperator string_to_arithmetic_operator(char *string) {
+    if (string == NULL) {
+        return NONE;
+    }
+
+    if (strcmp(string, "+") == 0) {
+        return ADD;
+    } else if (strcmp(string, "-") == 0) {
+        return SUBTRACT;
+    } else if (strcmp(string, "*") == 0) {
+        return MULTIPLY;
+    } else if (strcmp(string, "/") == 0) {
+        return DIVIDE;
+    } else {
+        return NONE;
+    }
+}
+
+static node_t *constant_fold_expression(node_t *node) {
     assert(node->type == EXPRESSION);
+    assert(node->n_children <= 2);
 
-    // TODO: Task 2.3
-    // Replace expression nodes by their values, if it is possible to compute them now
+    bool is_operator = node->data != NULL;
 
-    // First, expression nodes with no operator, and only one child, are just wrappers for
-    //   NUMBER_DATA, IDENTIFIER_DATA or ARRAY_INDEXING, and can be replaced by its children
+    // First, expression nodes with no operator, and only one child,
+    // are just wrappers for NUMBER_DATA, IDENTIFIER_DATA or ARRAY_INDEXING,
+    // and can be replaced by its children.
+    if (!is_operator && node->n_children == 1) {
+        return replace_with_child(node);
+    }
 
     // For expression nodes that are operators, we can only do constant folding if all its children are NUMBER_DATA.
     // In such cases, the expression node can be replaced with the value of its operator, applied to its child(ren).
+    if (is_operator && node->n_children > 0) {
+        if (all_children_are_numbers(node)) {
+            // Replace expression node with the value of its operator, applied to its children
+            ArithmeticOperator operator= string_to_arithmetic_operator(node->data);
+            // TODO
+        }
 
-    // Remember to free up the memory used by the original node(s), if they get replaced by a new node
-    return node;
+        // Remember to free up the memory used by the original node(s), if they get replaced by a new node
+        return node;
+    }
 }
 
 // Replaces the FOR_STATEMENT with a BLOCK.
 // The block contains varables, setup, and a while loop
-static node_t *replace_for_statement(node_t *for_node)
-{
+static node_t *replace_for_statement(node_t *for_node) {
     assert(for_node->type == FOR_STATEMENT);
 
     // extract child nodes from the FOR_STATEMENT
