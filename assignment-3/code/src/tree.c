@@ -11,6 +11,7 @@ static void node_print(node_t *node, int nesting);
 static void node_finalize(node_t *discard);
 static void destroy_subtree(node_t *discard);
 static node_t *simplify_tree(node_t *node);
+static node_t *replace_with_child(node_t *node);
 static node_t *constant_fold_expression(node_t *node);
 static node_t *replace_for_statement(node_t *for_node);
 
@@ -128,20 +129,27 @@ static void destroy_subtree(node_t *discard)
 static node_t *simplify_tree(node_t *node)
 {
     if (node == NULL)
+    {
         return NULL;
+    }
 
-    // Simplify everything is the node's subtree before proceeding
+    // Simplify everything in the node's subtree before proceeding
     for (uint64_t i = 0; i < node->n_children; i++)
         node->children[i] = simplify_tree(node->children[i]);
 
     switch (node->type)
     {
-    // TODO: Task 2.1
-    // Eliminate nodes of purely syntactic value.
-    // These nodes only have one child, and carry no semantic value.
+        // TODO: Task 2.1
+        // Eliminate nodes of purely syntactic value.
+        // These nodes only have one child, and carry no semantic value.
 
-    // For nodes that only serve as a wrapper for a (optional) node below,
-    // you may squash the child and take over its children instead.
+        // For nodes that only serve as a wrapper for a (optional) node below,
+        // you may squash the child and take over its children instead.
+
+        // These nodes have no semantic value, and can be replaced with their children
+    case PROGRAM:
+    case GLOBAL:
+        return replace_with_child(node);
 
     // TODO: Task 2.2
     // Flatten linked list structures.
@@ -177,6 +185,14 @@ static node_t *simplify_tree(node_t *node)
         node_init(variable, IDENTIFIER_DATA, identifier, 0); \
     } while (false)
 #define FOR_END_VARIABLE "__FOR_END__"
+
+static node_t *replace_with_child(node_t *node)
+{
+    assert(node->n_children == 1);
+    node_t *child = node->children[0];
+    node_finalize(node);
+    return child;
+}
 
 static node_t *constant_fold_expression(node_t *node)
 {
