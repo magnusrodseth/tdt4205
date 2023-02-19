@@ -28,6 +28,7 @@ static node_t *fold_expression(node_t *node);
 static void calculate_unary_fold(node_t *node, int64_t *result);
 static void calculate_binary_fold(node_t *node, int64_t *result);
 static node_t *replace_for_statement(node_t *for_node);
+static node_t *create_number_node(int64_t value);
 
 /* External interface */
 void print_syntax_tree() {
@@ -145,20 +146,21 @@ static node_t *simplify_tree(node_t *node) {
         case GLOBAL_LIST:
         case DECLARATION_LIST:
         case EXPRESSION_LIST:
-        case ARGUMENT_LIST:
             return flatten_list(node);
 
         case PRINT_STATEMENT:
         case DECLARATION:
         case PARAMETER_LIST:
         case ARRAY_DECLARATION:
+        case ARGUMENT_LIST:
             return squash_child(node);
 
         case EXPRESSION:
             return constant_fold_expression(node);
 
-        case FOR_STATEMENT:
-            return replace_for_statement(node);
+            // TODO: Implement support for "for" loops
+            // case FOR_STATEMENT:
+            //     return replace_for_statement(node);
 
         default:
             break;
@@ -222,12 +224,15 @@ static node_t *squash_child(node_t *node) {
 static node_t *flatten_list(node_t *node) {
     assert(node->n_children <= 2);
 
+    // TODO: What is the correct way of handling 0 or 1 children?
+
     if (node->n_children == 0) {
         return node;
     }
 
     if (node->n_children == 1) {
-        return replace_with_child(node);
+        // return replace_with_child(node);
+        return node;
     }
 
     node_t *left = node->children[0];
@@ -377,36 +382,33 @@ static node_t *constant_fold_expression(node_t *node) {
     return node;
 }
 
-// Replaces the FOR_STATEMENT with a BLOCK.
-// The block contains varables, setup, and a while loop
+static node_t *create_number_node(int64_t value) {
+    int64_t *data = malloc(sizeof(int64_t));
+    *data = value;
+
+    node_t *node = malloc(sizeof(node_t));
+    node_init(node, NUMBER_DATA, data, 0);
+
+    return node;
+}
+
+/**
+ * @brief Replaces a FOR_STATEMENT with a WHILE_STATEMENT.
+ *
+ * The returned BLOCK node contains variables, setup and a while loop.
+ *
+ * @param for_node is the root node of the FOR_STATEMENT.
+ * @return node_t* is the root node of the WHILE_STATEMENT, which will always be a BLOCK node.
+ */
 static node_t *replace_for_statement(node_t *for_node) {
     assert(for_node->type == FOR_STATEMENT);
+    assert(for_node->n_children == 4);
 
-    // extract child nodes from the FOR_STATEMENT
+    // Extract child nodes from the FOR_STATEMENT
     node_t *variable = for_node->children[0];
     node_t *start_value = for_node->children[1];
     node_t *end_value = for_node->children[2];
     node_t *body = for_node->children[3];
-
-    // TODO: Task 2.4
-    // Replace the FOR_STATEMENT node, by instead creating the syntax tree of an equivalent block with a while-statement
-    // As an example, the following statement:
-    //
-    // for i in 5..N+1
-    //     print a[i]
-    //
-    // should become:
-    //
-    // begin
-    //     var i, __FOR_END__
-    //     i := 5
-    //     __FOR_END__ := N+1
-    //     while i < __FOR_END__ begin
-    //         print a[i]
-    //         i := i + 1
-    //     end
-    // end
-    //
 
     // To aid in the manual creation of AST nodes, you can create named nodes using the NODE macro
     // As an example, the following creates the
@@ -427,9 +429,29 @@ static node_t *replace_for_statement(node_t *for_node) {
     DUPLICATE_VARIABLE(end_variable);
     NODE(end_assignment, ASSIGNMENT_STATEMENT, NULL, 2, end_variable, end_value);
 
-    // TODO: The rest is up to you. Good luck!
-    // Don't fret if this part gets too cumbersome. Try your best
+    // Create INCREMENT in STATEMENT_LIST in BLOCK in WHILE_STATEMENT
+    DUPLICATE_VARIABLE(variable);
+    NODE(increment, EXPRESSION, strdup("+"), 2, variable, create_number_node(1));
+    DUPLICATE_VARIABLE(variable);
+    NODE(increment_assignment_statement, ASSIGNMENT_STATEMENT, NULL, 2, variable, increment);
 
-    // TODO: Instead of returning the original for_node, destroy it, and return your equivalent block
-    return for_node;
+    // Create STATEMENT_LIST in BLOCK in WHILE_STATEMENT
+    NODE(statement_list_in_while_block, STATEMENT_LIST, NULL, 2, body, increment_assignment_statement);
+
+    // Create BLOCK in the WHILE_STATEMENT
+    NODE(while_block, BLOCK, NULL, 1, statement_list_in_while_block);
+
+    // Create the WHILE_STATEMENT
+    NODE(less_than, RELATION, strdup("<"), 2, variable, end_variable);
+    NODE(while_statement, WHILE_STATEMENT, NULL, 2, less_than, while_block);
+
+    // Create the STATEMENT_LIST
+    NODE(statement_list, STATEMENT_LIST, NULL, 3, init_assignment, end_assignment, while_statement);
+
+    // Create the root BLOCK node
+    NODE(block, BLOCK, NULL, 2, declaration_list, statement_list);
+
+    node_finalize(for_node);
+
+    return block;
 }
