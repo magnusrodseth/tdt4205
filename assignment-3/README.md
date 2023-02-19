@@ -34,5 +34,5 @@ cd code
 make purge && make
 
 # Run Valgrind on a specific .vsl file
-valgrind src/vslc < vsl_programs/ps3-simplify/*.vsl
+valgrind src/vslc < vsl_programs/ps3-simplify/<filename>.vsl
 ```
