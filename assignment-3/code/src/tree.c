@@ -223,14 +223,7 @@ static node_t *squash_child(node_t *node) {
 static node_t *flatten_list(node_t *node) {
     assert(node->n_children <= 2);
 
-    // TODO: What is the correct way of handling 0 or 1 children?
-
-    if (node->n_children == 0) {
-        return node;
-    }
-
-    if (node->n_children == 1) {
-        // return replace_with_child(node);
+    if (node->n_children == 0 || node->n_children == 1) {
         return node;
     }
 
