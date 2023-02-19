@@ -233,19 +233,19 @@ while_statement:
 relation:
     expression '=' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, RELATION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, RELATION, strdup("="), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     }
     | expression '!' '=' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, RELATION, NULL, 2, $1, $4); // $1 = EXPRESSION, $4 = EXPRESSION
+        node_init($$, RELATION, strdup("!="), 2, $1, $4); // $1 = EXPRESSION, $4 = EXPRESSION
     } 
     | expression '<' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, RELATION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, RELATION, strdup("<"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     } 
     | expression '>' expression {
         $$ = malloc(sizeof(node_t));
-        node_init($$, RELATION, NULL, 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
+        node_init($$, RELATION, strdup(">"), 2, $1, $3); // $1 = EXPRESSION, $3 = EXPRESSION
     };
 
 for_statement:
@@ -293,7 +293,7 @@ expression:
     }
     | identifier '(' argument_list ')' {
         $$ = malloc(sizeof(node_t));
-        node_init($$, EXPRESSION, NULL, 2, $1, $3); // $1 = IDENTIFIER, $3 = ARGUMENT_LIST
+        node_init($$, EXPRESSION, strdup("call"), 2, $1, $3); // $1 = IDENTIFIER, $3 = ARGUMENT_LIST
     };
 
 expression_list:

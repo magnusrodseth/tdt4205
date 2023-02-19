@@ -140,11 +140,16 @@ static node_t *simplify_tree(node_t *node) {
         case VARIABLE_LIST:
         case PRINT_LIST:
         case STATEMENT_LIST:
+        // case GLOBAL_LIST:
+        case DECLARATION_LIST:
+        case EXPRESSION_LIST:
+        case ARGUMENT_LIST:
             return flatten_list(node);
 
         case PRINT_STATEMENT:
         case DECLARATION:
         case PARAMETER_LIST:
+        case ARRAY_DECLARATION:
             return squash_child(node);
 
         // Do contstant folding, if possible
@@ -289,12 +294,60 @@ static node_t *constant_fold_expression(node_t *node) {
         if (all_children_are_numbers(node)) {
             // Replace expression node with the value of its operator, applied to its children
             ArithmeticOperator operator= string_to_arithmetic_operator(node->data);
-            // TODO
-        }
 
-        // Remember to free up the memory used by the original node(s), if they get replaced by a new node
-        return node;
+            int64_t *result = malloc(sizeof(int64_t));
+            *result = 0;
+
+            if (node->n_children == 1) {
+                int64_t *child_value = node->children[0]->data;
+                switch (operator) {
+                    case ADD:
+                        *result = *child_value;
+                        break;
+                    case SUBTRACT:
+                        *result = -*child_value;
+                        break;
+                    case MULTIPLY:
+                        *result = 0;
+                        break;
+                    case DIVIDE:
+                        *result = 0;
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                int64_t *left_value = node->children[0]->data;
+                int64_t *right_value = node->children[1]->data;
+
+                switch (operator) {
+                    case ADD:
+                        *result = *left_value + *right_value;
+                        break;
+                    case SUBTRACT:
+                        *result = *left_value - *right_value;
+                        break;
+                    case MULTIPLY:
+                        *result = *left_value * *right_value;
+                        break;
+                    case DIVIDE:
+                        *result = *left_value / *right_value;
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            node->type = NUMBER_DATA;
+            node->data = result;
+            node->n_children = 0;
+
+            return node;
+        }
     }
+
+    // Remember to free up the memory used by the original node(s), if they get replaced by a new node
+    return node;
 }
 
 // Replaces the FOR_STATEMENT with a BLOCK.
