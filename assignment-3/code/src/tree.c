@@ -25,6 +25,9 @@ static node_t *flatten_list(node_t *node);
 static bool all_children_are_numbers(node_t *node);
 static ArithmeticOperator string_to_arithmetic_operator(char *string);
 static node_t *constant_fold_expression(node_t *node);
+static node_t *fold_expression(node_t *node);
+static void calculate_unary_fold(node_t *node, int64_t *result);
+static void calculate_binary_fold(node_t *node, int64_t *result);
 static node_t *replace_for_statement(node_t *for_node);
 
 /* External interface */
@@ -275,6 +278,86 @@ static ArithmeticOperator string_to_arithmetic_operator(char *string) {
     }
 }
 
+/**
+ * @brief Wrapper for performing constant folding on either a unary or binary expression.
+ *
+ * @param node is the expression node.
+ */
+static node_t *fold_expression(node_t *node) {
+    int64_t *result = malloc(sizeof(int64_t));
+    *result = 0;
+
+    if (node->n_children == 1) {
+        calculate_unary_fold(node, result);
+    } else if (node->n_children == 2) {
+        calculate_binary_fold(node, result);
+    }
+
+    node->type = NUMBER_DATA;
+    node->data = result;
+    node->n_children = 0;
+
+    return node;
+}
+
+/**
+ * @brief Performs constant folding on an expression with only one child.
+ *
+ * @param node is the expression node.
+ * @param result is the result of the constant folding.
+ **/
+static void calculate_unary_fold(node_t *node, int64_t *result) {
+    ArithmeticOperator operator= string_to_arithmetic_operator(node->data);
+
+    int64_t *child_value = node->children[0]->data;
+    switch (operator) {
+        case ADD:
+            *result = *child_value;
+            break;
+        case SUBTRACT:
+            *result = -*child_value;
+            break;
+        case MULTIPLY:
+            *result = 0;
+            break;
+        case DIVIDE:
+            *result = 0;
+            break;
+        default:
+            break;
+    }
+}
+
+/**
+ * @brief Performs constant folding on an expression with two children.
+ *
+ * @param node is the expression node.
+ * @param result is the result of the constant folding.
+ */
+static void calculate_binary_fold(node_t *node, int64_t *result) {
+    ArithmeticOperator operator= string_to_arithmetic_operator(node->data);
+
+    int64_t *left = node->children[0]->data;
+    int64_t *right = node->children[1]->data;
+
+    switch (operator) {
+        case ADD:
+            *result = *left + *right;
+            break;
+        case SUBTRACT:
+            *result = *left - *right;
+            break;
+        case MULTIPLY:
+            *result = *left * *right;
+            break;
+        case DIVIDE:
+            *result = *left / *right;
+            break;
+        default:
+            break;
+    }
+}
+
 static node_t *constant_fold_expression(node_t *node) {
     assert(node->type == EXPRESSION);
     assert(node->n_children <= 2);
@@ -292,61 +375,12 @@ static node_t *constant_fold_expression(node_t *node) {
     // In such cases, the expression node can be replaced with the value of its operator, applied to its child(ren).
     if (is_operator && node->n_children > 0) {
         if (all_children_are_numbers(node)) {
-            // Replace expression node with the value of its operator, applied to its children
-            ArithmeticOperator operator= string_to_arithmetic_operator(node->data);
-
-            int64_t *result = malloc(sizeof(int64_t));
-            *result = 0;
-
-            if (node->n_children == 1) {
-                int64_t *child_value = node->children[0]->data;
-                switch (operator) {
-                    case ADD:
-                        *result = *child_value;
-                        break;
-                    case SUBTRACT:
-                        *result = -*child_value;
-                        break;
-                    case MULTIPLY:
-                        *result = 0;
-                        break;
-                    case DIVIDE:
-                        *result = 0;
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                int64_t *left_value = node->children[0]->data;
-                int64_t *right_value = node->children[1]->data;
-
-                switch (operator) {
-                    case ADD:
-                        *result = *left_value + *right_value;
-                        break;
-                    case SUBTRACT:
-                        *result = *left_value - *right_value;
-                        break;
-                    case MULTIPLY:
-                        *result = *left_value * *right_value;
-                        break;
-                    case DIVIDE:
-                        *result = *left_value / *right_value;
-                        break;
-                    default:
-                        break;
-                }
-            }
-
-            node->type = NUMBER_DATA;
-            node->data = result;
-            node->n_children = 0;
-
-            return node;
+            return fold_expression(node);
         }
+
+        return node;
     }
 
-    // Remember to free up the memory used by the original node(s), if they get replaced by a new node
     return node;
 }
 
