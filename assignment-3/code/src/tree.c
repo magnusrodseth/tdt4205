@@ -14,7 +14,6 @@ typedef enum ArithmeticOperator {
     NONE
 } ArithmeticOperator;
 
-// Tasks
 static void node_print(node_t *node, int nesting);
 static void node_finalize(node_t *discard);
 static void destroy_subtree(node_t *discard);
@@ -143,7 +142,7 @@ static node_t *simplify_tree(node_t *node) {
         case VARIABLE_LIST:
         case PRINT_LIST:
         case STATEMENT_LIST:
-        // case GLOBAL_LIST:
+        case GLOBAL_LIST:
         case DECLARATION_LIST:
         case EXPRESSION_LIST:
         case ARGUMENT_LIST:
@@ -155,8 +154,6 @@ static node_t *simplify_tree(node_t *node) {
         case ARRAY_DECLARATION:
             return squash_child(node);
 
-        // Do contstant folding, if possible
-        // Also prunes expressions that are just wrapping atomic expressions
         case EXPRESSION:
             return constant_fold_expression(node);
 
@@ -364,21 +361,17 @@ static node_t *constant_fold_expression(node_t *node) {
 
     bool is_operator = node->data != NULL;
 
-    // First, expression nodes with no operator, and only one child,
-    // are just wrappers for NUMBER_DATA, IDENTIFIER_DATA or ARRAY_INDEXING,
-    // and can be replaced by its children.
+    // Expressions with no operator and one child are only wrappers, and can be replaced by their children
     if (!is_operator && node->n_children == 1) {
         return replace_with_child(node);
     }
 
-    // For expression nodes that are operators, we can only do constant folding if all its children are NUMBER_DATA.
-    // In such cases, the expression node can be replaced with the value of its operator, applied to its child(ren).
+    // Expressions with operators can have 1 or 2 children,
+    // and we can only do constant folding if all children are numbers
     if (is_operator && node->n_children > 0) {
         if (all_children_are_numbers(node)) {
             return fold_expression(node);
         }
-
-        return node;
     }
 
     return node;
