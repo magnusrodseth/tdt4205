@@ -158,9 +158,8 @@ static node_t *simplify_tree(node_t *node) {
         case EXPRESSION:
             return constant_fold_expression(node);
 
-            // TODO: Implement support for "for" loops
-            // case FOR_STATEMENT:
-            //     return replace_for_statement(node);
+        case FOR_STATEMENT:
+            return replace_for_statement(node);
 
         default:
             break;
@@ -442,6 +441,8 @@ static node_t *replace_for_statement(node_t *for_node) {
     NODE(while_block, BLOCK, NULL, 1, statement_list_in_while_block);
 
     // Create the WHILE_STATEMENT
+    DUPLICATE_VARIABLE(variable);
+    DUPLICATE_VARIABLE(end_variable);
     NODE(less_than, RELATION, strdup("<"), 2, variable, end_variable);
     NODE(while_statement, WHILE_STATEMENT, NULL, 2, less_than, while_block);
 
