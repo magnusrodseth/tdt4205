@@ -245,39 +245,14 @@ static node_t *flatten_list(node_t *node) {
     return node;
 }
 
-static bool all_children_are_numbers(node_t *node) {
-    for (uint64_t i = 0; i < node->n_children; i++) {
-        if (node->children[i]->type != NUMBER_DATA) {
-            return false;
-        }
-    }
-    return true;
-}
-
-static ArithmeticOperator string_to_arithmetic_operator(char *string) {
-    if (string == NULL) {
-        return NONE;
-    }
-
-    if (strcmp(string, "+") == 0) {
-        return ADD;
-    } else if (strcmp(string, "-") == 0) {
-        return SUBTRACT;
-    } else if (strcmp(string, "*") == 0) {
-        return MULTIPLY;
-    } else if (strcmp(string, "/") == 0) {
-        return DIVIDE;
-    } else {
-        return NONE;
-    }
-}
-
 /**
  * @brief Wrapper for performing constant folding on either a unary or binary expression.
  *
  * @param node is the expression node.
  */
 static node_t *fold_expression(node_t *node) {
+    assert(node->n_children == 1 || node->n_children == 2);
+
     int64_t *result = malloc(sizeof(int64_t));
     *result = 0;
 
@@ -309,7 +284,7 @@ static void calculate_unary_fold(node_t *node, int64_t *result) {
             *result = *child_value;
             break;
         case SUBTRACT:
-            *result = -*child_value;
+            *result = -(*child_value);
             break;
         case MULTIPLY:
             *result = 0;
@@ -336,16 +311,16 @@ static void calculate_binary_fold(node_t *node, int64_t *result) {
 
     switch (operator) {
         case ADD:
-            *result = *left + *right;
+            *result = (*left) + (*right);
             break;
         case SUBTRACT:
-            *result = *left - *right;
+            *result = (*left) - (*right);
             break;
         case MULTIPLY:
-            *result = *left * *right;
+            *result = (*left) * (*right);
             break;
         case DIVIDE:
-            *result = *left / *right;
+            *result = (*left) / (*right);
             break;
         default:
             break;
@@ -370,16 +345,6 @@ static node_t *constant_fold_expression(node_t *node) {
             return fold_expression(node);
         }
     }
-
-    return node;
-}
-
-static node_t *create_number_node(int64_t value) {
-    int64_t *data = malloc(sizeof(int64_t));
-    *data = value;
-
-    node_t *node = malloc(sizeof(node_t));
-    node_init(node, NUMBER_DATA, data, 0);
 
     return node;
 }
@@ -448,4 +413,41 @@ static node_t *replace_for_statement(node_t *for_node) {
     node_finalize(for_node);
 
     return block;
+}
+
+static bool all_children_are_numbers(node_t *node) {
+    for (uint64_t i = 0; i < node->n_children; i++) {
+        if (node->children[i]->type != NUMBER_DATA) {
+            return false;
+        }
+    }
+    return true;
+}
+
+static ArithmeticOperator string_to_arithmetic_operator(char *string) {
+    if (string == NULL) {
+        return NONE;
+    }
+
+    if (strcmp(string, "+") == 0) {
+        return ADD;
+    } else if (strcmp(string, "-") == 0) {
+        return SUBTRACT;
+    } else if (strcmp(string, "*") == 0) {
+        return MULTIPLY;
+    } else if (strcmp(string, "/") == 0) {
+        return DIVIDE;
+    } else {
+        return NONE;
+    }
+}
+
+static node_t *create_number_node(int64_t value) {
+    int64_t *data = malloc(sizeof(int64_t));
+    *data = value;
+
+    node_t *node = malloc(sizeof(node_t));
+    node_init(node, NUMBER_DATA, data, 0);
+
+    return node;
 }
