@@ -1,0 +1,76 @@
+0: FUNCTION(main)
+    0: PARAMETER(a)
+    1: PARAMETER(b)
+    2: LOCAL_VAR(i)
+    3: LOCAL_VAR(__FOR_END__)
+    4: LOCAL_VAR(j)
+    5: LOCAL_VAR(__FOR_END__)
+
+ == STRING LIST == 
+0: "i = "
+1: ", j = "
+
+ == BOUND SYNTAX TREE == 
+GLOBAL_LIST
+ FUNCTION
+  IDENTIFIER_DATA(main)
+  PARAMETER_LIST
+   IDENTIFIER_DATA(a)
+   IDENTIFIER_DATA(b)
+  BLOCK
+   STATEMENT_LIST
+    BLOCK
+     DECLARATION_LIST
+      DECLARATION
+       IDENTIFIER_DATA(i)
+       IDENTIFIER_DATA(__FOR_END__)
+     STATEMENT_LIST
+      ASSIGNMENT_STATEMENT
+       IDENTIFIER_DATA(i) LOCAL_VAR(2)
+       IDENTIFIER_DATA(a) PARAMETER(0)
+      ASSIGNMENT_STATEMENT
+       IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(3)
+       EXPRESSION(+)
+        IDENTIFIER_DATA(b) PARAMETER(1)
+        NUMBER_DATA(1)
+      WHILE_STATEMENT
+       RELATION(<)
+        IDENTIFIER_DATA(i) LOCAL_VAR(2)
+        IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(3)
+       BLOCK
+        STATEMENT_LIST
+         BLOCK
+          DECLARATION_LIST
+           DECLARATION
+            IDENTIFIER_DATA(j)
+            IDENTIFIER_DATA(__FOR_END__)
+          STATEMENT_LIST
+           ASSIGNMENT_STATEMENT
+            IDENTIFIER_DATA(j) LOCAL_VAR(4)
+            IDENTIFIER_DATA(i) LOCAL_VAR(2)
+           ASSIGNMENT_STATEMENT
+            IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(5)
+            EXPRESSION(+)
+             IDENTIFIER_DATA(b) PARAMETER(1)
+             NUMBER_DATA(1)
+           WHILE_STATEMENT
+            RELATION(<)
+             IDENTIFIER_DATA(j) LOCAL_VAR(4)
+             IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(5)
+            BLOCK
+             STATEMENT_LIST
+              PRINT_STATEMENT
+               STRING_DATA(#0)
+               IDENTIFIER_DATA(i) LOCAL_VAR(2)
+               STRING_DATA(#1)
+               IDENTIFIER_DATA(j) LOCAL_VAR(4)
+              ASSIGNMENT_STATEMENT
+               IDENTIFIER_DATA(j) LOCAL_VAR(4)
+               EXPRESSION(+)
+                IDENTIFIER_DATA(j) LOCAL_VAR(4)
+                NUMBER_DATA(1)
+         ASSIGNMENT_STATEMENT
+          IDENTIFIER_DATA(i) LOCAL_VAR(2)
+          EXPRESSION(+)
+           IDENTIFIER_DATA(i) LOCAL_VAR(2)
+           NUMBER_DATA(1)

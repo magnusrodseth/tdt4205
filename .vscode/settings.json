@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "vslc.h": "c",
+    "symbol_table.h": "c"
+  }
+}

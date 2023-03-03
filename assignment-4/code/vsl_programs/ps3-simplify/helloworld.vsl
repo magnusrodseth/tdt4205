@@ -1,0 +1,6 @@
+
+func main() begin
+    print "Hello", " ", "World"
+    print "Hallo", " ", "Verden"
+    print "Goodbye\n"
+end
