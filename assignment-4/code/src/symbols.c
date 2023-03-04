@@ -224,10 +224,6 @@ static size_t add_string(char *string) {
 
 /* Prints all strings added to the global string list */
 static void print_string_list(void) {
-    // TODO: Implement printing of the string list like so:
-    // 0: "string 1"
-    // 1: "some other string"
-
     for (int i = 0; i < string_list_len; i++) {
         printf("%d: %s\n", i, string_list[i]);
     }
@@ -235,5 +231,8 @@ static void print_string_list(void) {
 
 /* Frees all strings in the global string list, and the string list itself */
 static void destroy_string_list(void) {
-    // TODO: Called during cleanup, free strings, and the memory used by the string list itself
+    for (int i = 0; i < string_list_len; i++) {
+        free(string_list[i]);
+    }
+    free(string_list);
 }
