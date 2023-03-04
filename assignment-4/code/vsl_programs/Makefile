@@ -4,6 +4,7 @@ PS2_EXAMPLES := $(patsubst %.vsl, %.ast, $(wildcard ps2-parser/*.vsl))
 PS2_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps2-parser/*.vsl))
 PS3_EXAMPLES := $(patsubst %.vsl, %.ast, $(wildcard ps3-simplify/*.vsl))
 PS3_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps3-simplify/*.vsl))
+PS4_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps4-symbols/*.vsl))
 PS4_EXAMPLES := $(patsubst %.vsl, %.symbols, $(wildcard ps4-symbols/*.vsl))
 
 .PHONY: all ps2 ps2-graphviz ps3 ps3-graphviz ps4 clean ps2-check
@@ -17,6 +18,7 @@ ps3: $(PS3_EXAMPLES)
 ps3-graphviz: $(PS3_GRAPHVIZ)
 
 ps4: $(PS4_EXAMPLES)
+ps4-graphviz: $(PS4_GRAPHVIZ)
 
 ps2-parser/%.ast: ps2-parser/%.vsl $(VSLC)
 	$(VSLC) -t < $< > $@

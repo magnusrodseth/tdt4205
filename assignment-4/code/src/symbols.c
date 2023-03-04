@@ -147,14 +147,15 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
     // TODO: Output the given symbol table
-    // TIP: Use SYMBOL_TYPE_NAMES[ my_sybmol->type ] to get a human readable string for each symbol type
+    // TIP: Use SYMBOL_TYPE_NAMES[ my_symbol->type ] to get a human readable string for each symbol type
 
-    for (size_t i = 0; i < table->n_symbols; i++) {
+    for (int i = 0; i < table->n_symbols; i++) {
         symbol_t *symbol = table->symbols[i];
-        printf("%*s %s: %s", nesting, "", symbol->name, SYMBOL_TYPE_NAMES[symbol->type]);
+
+        printf("%d: %s(%s)", i, SYMBOL_TYPE_NAMES[symbol->type], symbol->name);
 
         if (symbol->type == SYMBOL_FUNCTION) {
-            printf("");
+            print_symbol_table(symbol->function_symtable, nesting + 1);
         }
     }
 }

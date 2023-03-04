@@ -1,4 +1,4 @@
- main: FUNCTION
+0: FUNCTION(main)
  == STRING LIST == 
 
  == BOUND SYNTAX TREE == 
