@@ -3,8 +3,8 @@
 /* Global symbol table and string list */
 symbol_table_t *global_symbols;
 char **string_list;
-size_t string_list_len = 0;
-size_t string_list_capacity = 1;
+size_t string_list_len;
+size_t string_list_capacity;
 
 static void find_globals(void);
 static void bind_names(symbol_table_t *local_symbols, node_t *root);
@@ -28,7 +28,7 @@ void create_tables(void) {
     //  As global symbols are added, function symbols get their own local symbol tables as well.
     find_globals();
 
-    //  Once all global symols are added, go through all function bodies.
+    //  Once all global symbols are added, go through all function bodies.
     //  All references to variables and functions by name, should get pointers to the symbols in the table.
     //  This should be performed by bind_names(function symbol table, function body AST node)
     //  It also handles adding local variables to the local symbol table, and pushing and popping scopes.
@@ -39,7 +39,8 @@ void create_tables(void) {
         if (node->type == FUNCTION) {
             assert(node->n_children == 3);
             node_t *function_body = node->children[2];
-            // bind_names(node->symbol->function_symtable, function_body);
+            assert(node->symbol->function_symtable != NULL);
+            bind_names(node->symbol->function_symtable, function_body);
         }
     }
 }
@@ -117,6 +118,7 @@ static void find_globals(void) {
                 parameter_symbol->type = SYMBOL_PARAMETER;
                 symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
             }
+            node->symbol = function_symbol;
         }
     }
 }
@@ -137,31 +139,35 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     for (size_t i = 0; i < node->n_children; i++) {
         node_t *child = node->children[i];
 
-        if (child->type == DECLARATION) {
-            for (size_t j = 0; j < child->n_children; j++) {
-                node_t *variable = child->children[j];
-                symbol_t *variable_symbol = malloc(sizeof(symbol_t));
-                variable_symbol->name = variable->data;
-                variable_symbol->type = SYMBOL_LOCAL_VAR;
-                symbol_table_insert(local_symbols, variable_symbol);
-                variable->symbol = variable_symbol;
-            }
-        }
+        // if (child->type == DECLARATION) {
+        //     for (size_t j = 0; j < child->n_children; j++) {
+        //         node_t *variable = child->children[j];
+        //         symbol_t *variable_symbol = malloc(sizeof(symbol_t));
+        //         variable_symbol->name = variable->data;
+        //         variable_symbol->type = SYMBOL_LOCAL_VAR;
+        //         symbol_table_insert(local_symbols, variable_symbol);
+        //         variable->symbol = variable_symbol;
+        //     }
+        // }
 
-        else if (child->type == BLOCK) {
-            symbol_hashmap_t *new_scope = symbol_hashmap_init();
-            new_scope->backup = local_symbols->hashmap;
-            local_symbols->hashmap = new_scope;
-        } else if (child->type == STRING_DATA) {
+        // else if (child->type == BLOCK) {
+        //     symbol_hashmap_t *new_scope = symbol_hashmap_init();
+        //     new_scope->backup = local_symbols->hashmap;
+        //     local_symbols->hashmap = new_scope;
+        if (child->type == STRING_DATA) {
+            // ✅ should be good
             size_t position = add_string(child->data);
-            child->data = (int64_t)position;
+            int64_t *data = malloc(sizeof(int64_t));
+            *data = position;
+            child->data = data;
         }
 
         bind_names(local_symbols, child);
     }
 }
 
-/** Prints the given symbol table, with sequence number, symbol names and types.
+/**
+ * Prints the given symbol table, with sequence number, symbol names and types.
  * When printing function symbols, its local symbol table is recursively printed, with indentation.
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
@@ -197,7 +203,8 @@ static void destroy_symbol_tables(void) {
     // }
 }
 
-/** Adds the given string to the global string list, resizing if needed.
+/**
+ * Adds the given string to the global string list, resizing if needed.
  * Takes ownership of the string, and returns its position in the string list.
  */
 static size_t add_string(char *string) {
@@ -220,6 +227,10 @@ static void print_string_list(void) {
     // TODO: Implement printing of the string list like so:
     // 0: "string 1"
     // 1: "some other string"
+
+    for (int i = 0; i < string_list_len; i++) {
+        printf("%d: %s\n", i, string_list[i]);
+    }
 }
 
 /* Frees all strings in the global string list, and the string list itself */

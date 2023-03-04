@@ -74,7 +74,8 @@ void node_init(node_t *node, node_type_t type, void *data, uint64_t n_children, 
 static void node_print(node_t *node, int nesting) {
     if (node != NULL) {
         printf("%*s%s", nesting, "", node_strings[node->type]);
-        if (node->type == IDENTIFIER_DATA || node->type == EXPRESSION ||
+        if (node->type == IDENTIFIER_DATA ||
+            node->type == EXPRESSION ||
             node->type == RELATION)
             printf("(%s)", (char *)node->data);
         else if (node->type == NUMBER_DATA)

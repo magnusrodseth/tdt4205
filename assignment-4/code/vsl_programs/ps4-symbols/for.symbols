@@ -3,10 +3,12 @@
     1: PARAMETER(b)
 
  == STRING LIST == 
+0: "i = "
+1: ", j = "
 
  == BOUND SYNTAX TREE == 
 GLOBAL_LIST
- FUNCTION
+ FUNCTION FUNCTION(0)
   IDENTIFIER_DATA(main)
   PARAMETER_LIST
    IDENTIFIER_DATA(a)
@@ -56,9 +58,9 @@ GLOBAL_LIST
             BLOCK
              STATEMENT_LIST
               PRINT_STATEMENT
-               STRING_DATA("i = ")
+               STRING_DATA(#0)
                IDENTIFIER_DATA(i)
-               STRING_DATA(", j = ")
+               STRING_DATA(#1)
                IDENTIFIER_DATA(j)
               ASSIGNMENT_STATEMENT
                IDENTIFIER_DATA(j)
