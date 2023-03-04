@@ -74,18 +74,34 @@ void node_init(node_t *node, node_type_t type, void *data, uint64_t n_children, 
 static void node_print(node_t *node, int nesting) {
     if (node != NULL) {
         printf("%*s%s", nesting, "", node_strings[node->type]);
-        if (node->type == IDENTIFIER_DATA ||
-            node->type == STRING_DATA ||
-            node->type == EXPRESSION ||
+        if (node->type == IDENTIFIER_DATA || node->type == EXPRESSION ||
             node->type == RELATION)
             printf("(%s)", (char *)node->data);
         else if (node->type == NUMBER_DATA)
-            printf("(%ld)", *((int64_t *)node->data));
+            printf("(%ld)", *(int64_t *)node->data);
+        else if (node->type == STRING_DATA) {
+            if (node->data && *(char *)node->data != '"')
+                printf("(#%ld)", *(int64_t *)node->data);
+            else
+                printf("(%s)", (char *)node->data);
+        }
+
+        // If the node has a symbol, print that as well
+        if (node->symbol)
+            printf(" %s(%ld)",
+                   ((const char *[]){[SYMBOL_GLOBAL_VAR] = "GLOBAL_VAR",
+                                     [SYMBOL_GLOBAL_ARRAY] = "GLOBAL_ARRAY",
+                                     [SYMBOL_FUNCTION] = "FUNCTION",
+                                     [SYMBOL_PARAMETER] = "PARAMETER",
+                                     [SYMBOL_LOCAL_VAR] =
+                                         "LOCAL_VAR"})[node->symbol->type],
+                   node->symbol->sequence_number);
+
         putchar('\n');
         for (int64_t i = 0; i < node->n_children; i++)
             node_print(node->children[i], nesting + 1);
     } else
-        printf("%*s%p\n", nesting, "", node);
+        printf("%*s(NULL)\n", nesting, "");
 }
 
 /* Frees the memory owned by the given node, but does not touch its children */

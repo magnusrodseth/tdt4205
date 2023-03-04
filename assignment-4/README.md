@@ -19,7 +19,10 @@ make purge && make
 cd vsl_programs
 
 # Clean and generate the Graphwiz representation of the AST
-make clean && make
+make clean && make ps4-graphviz
+
+# Clean and generate the symbol table, string list and bound syntax tree
+make clean && make ps4
 ```
 
 ### Valgrind and memory correctness
@@ -34,5 +37,5 @@ cd code
 make purge && make
 
 # Run Valgrind on a specific .vsl file
-valgrind src/vslc < vsl_programs/ps3-simplify/<filename>.vsl
+valgrind src/vslc < vsl_programs/ps4-symbols/<filename>.vsl
 ```

@@ -93,8 +93,9 @@ static void symbol_hashmap_resize(symbol_hashmap_t *hashmap, size_t new_capacity
 static insert_result_t symbol_hashmap_insert(symbol_hashmap_t *hashmap, symbol_t *symbol) {
     // Make sure that the fill ratio of the hashmap never exeeds 1/2
     int new_size = hashmap->n_entries + 1;
-    if (new_size * 2 > hashmap->n_buckets)
+    if (new_size * 2 > hashmap->n_buckets) {
         symbol_hashmap_resize(hashmap, hashmap->n_buckets * 2 + 8);
+    }
 
     // Now calculate the position of the new entry
     uint64_t hash = hash_string(symbol->name);

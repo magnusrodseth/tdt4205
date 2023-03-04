@@ -3,8 +3,8 @@
 /* Global symbol table and string list */
 symbol_table_t *global_symbols;
 char **string_list;
-size_t string_list_len;
-size_t string_list_capacity;
+size_t string_list_len = 0;
+size_t string_list_capacity = 1;
 
 static void find_globals(void);
 static void bind_names(symbol_table_t *local_symbols, node_t *root);
@@ -24,25 +24,24 @@ static void destroy_string_list(void);
  *  - All strings are entered into the string_list
  */
 void create_tables(void) {
-    // TODO:
     //  First, use find_globals() to create the global symbol table.
     //  As global symbols are added, function symbols get their own local symbol tables as well.
     find_globals();
 
     //  Once all global symols are added, go through all function bodies.
     //  All references to variables and functions by name, should get pointers to the symbols in the table.
-    //  This should performed by bind_names(function symbol table, function body AST node)
-    // for (size_t i = 0; i < root->n_children; i++) {
-    //     node_t *node = root->children[i];
-    //     if (node->type == FUNCTION) {
-    //         assert(node->n_children == 3);
-    //         node_t *function_body = node->children[2];
-    //         bind_names(node->symbol->function_symtable, function_body);
-    //     }
-    // }
-
+    //  This should be performed by bind_names(function symbol table, function body AST node)
     //  It also handles adding local variables to the local symbol table, and pushing and popping scopes.
     //  A final task performed by bind_names(), is adding strings to the global string list
+    // TODO: Comment / uncomment this when testing
+    for (size_t i = 0; i < root->n_children; i++) {
+        node_t *node = root->children[i];
+        if (node->type == FUNCTION) {
+            assert(node->n_children == 3);
+            node_t *function_body = node->children[2];
+            // bind_names(node->symbol->function_symtable, function_body);
+        }
+    }
 }
 
 /**
@@ -101,22 +100,20 @@ static void find_globals(void) {
             symbol_table_insert(global_symbols, global_array_symbol);
         } else if (node->type == FUNCTION) {
             assert(node->n_children == 3);
-            // Iterate through all functions, and add them to the global symbol table
             symbol_t *function_symbol = malloc(sizeof(symbol_t));
-            node_t *function_identifier = node->children[0];
-            function_symbol->name = function_identifier->data;
+            node_t *identifier = node->children[0];
+            function_symbol->name = identifier->data;
             function_symbol->type = SYMBOL_FUNCTION;
             symbol_table_insert(global_symbols, function_symbol);
 
-            // Create a local symbol table for the function, and add all its parameters and local variables to it
+            // Create a local symbol table for the function, and add all its parameters to it
             function_symbol->function_symtable = symbol_table_init();
             node_t *parameter_list = node->children[1];
             for (size_t j = 0; j < parameter_list->n_children; j++) {
-                node_t *identifier = parameter_list->children[j];
-                assert(identifier->type == IDENTIFIER_DATA);
-
+                node_t *parameter = parameter_list->children[j];
+                assert(parameter->type == IDENTIFIER_DATA);
                 symbol_t *parameter_symbol = malloc(sizeof(symbol_t));
-                parameter_symbol->name = identifier->data;
+                parameter_symbol->name = parameter->data;
                 parameter_symbol->type = SYMBOL_PARAMETER;
                 symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
             }
@@ -133,8 +130,35 @@ static void find_globals(void) {
  */
 static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     // TODO: Implement bind_names, doing all the things described above
-    // Tip: See symbol_hashmap_init () in symbol_table.h, to make new hashmaps for new scopes.
+    // Tip: See symbol_hashmap_init() in symbol_table.h, to make new hashmaps for new scopes.
     // Remember the symbol_hashmap_t's backup pointer, allowing you to make linked lists.
+
+    // Recursively traverse the body of the function (from the provided node)
+    for (size_t i = 0; i < node->n_children; i++) {
+        node_t *child = node->children[i];
+
+        if (child->type == DECLARATION) {
+            for (size_t j = 0; j < child->n_children; j++) {
+                node_t *variable = child->children[j];
+                symbol_t *variable_symbol = malloc(sizeof(symbol_t));
+                variable_symbol->name = variable->data;
+                variable_symbol->type = SYMBOL_LOCAL_VAR;
+                symbol_table_insert(local_symbols, variable_symbol);
+                variable->symbol = variable_symbol;
+            }
+        }
+
+        else if (child->type == BLOCK) {
+            symbol_hashmap_t *new_scope = symbol_hashmap_init();
+            new_scope->backup = local_symbols->hashmap;
+            local_symbols->hashmap = new_scope;
+        } else if (child->type == STRING_DATA) {
+            size_t position = add_string(child->data);
+            child->data = (int64_t)position;
+        }
+
+        bind_names(local_symbols, child);
+    }
 }
 
 /** Prints the given symbol table, with sequence number, symbol names and types.
@@ -158,14 +182,37 @@ static void print_symbol_table(symbol_table_t *table, int nesting) {
 /* Frees up the memory used by the global symbol table, all local symbol tables, and their symbols */
 static void destroy_symbol_tables(void) {
     // TODO: Implement cleanup. All symbols in the program are owned by exactly one symbol table.
+
+    // for (int i = 0; i < global_symbols->n_symbols; i++) {
+    //     symbol_t *symbol = global_symbols->symbols[i];
+    //     if (symbol == NULL) {
+    //         continue;
+    //     }
+
+    //     if (symbol->type == SYMBOL_FUNCTION) {
+    //         symbol_table_destroy(symbol->function_symtable);
+    //     }
+
+    //     free(symbol);
+    // }
 }
 
 /** Adds the given string to the global string list, resizing if needed.
  * Takes ownership of the string, and returns its position in the string list.
  */
 static size_t add_string(char *string) {
-    // TODO: Write a helper function you can use during bind_names(),
-    // to easily add a string into the dynamically growing string_list
+    // If the string list is full, resize it
+    if (string_list_len == string_list_capacity) {
+        string_list_capacity *= 2;
+        string_list = realloc(string_list, string_list_capacity * sizeof(char *));
+    }
+
+    // Add the string to the list, and return its position
+    string_list[string_list_len] = string;
+    size_t position = string_list_len;
+    string_list_len++;
+
+    return position;
 }
 
 /* Prints all strings added to the global string list */
