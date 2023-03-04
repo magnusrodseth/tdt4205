@@ -29,9 +29,17 @@ void create_tables(void) {
     //  As global symbols are added, function symbols get their own local symbol tables as well.
     find_globals();
 
-    //  Once all global symols are added, go through all functions bodies.
+    //  Once all global symols are added, go through all function bodies.
     //  All references to variables and functions by name, should get pointers to the symbols in the table.
-    //  This should performed by bind_names( function symbol table, function body AST node )
+    //  This should performed by bind_names(function symbol table, function body AST node)
+    // for (size_t i = 0; i < root->n_children; i++) {
+    //     node_t *node = root->children[i];
+    //     if (node->type == FUNCTION) {
+    //         assert(node->n_children == 3);
+    //         node_t *function_body = node->children[2];
+    //         bind_names(node->symbol->function_symtable, function_body);
+    //     }
+    // }
 
     //  It also handles adding local variables to the local symbol table, and pushing and popping scopes.
     //  A final task performed by bind_names(), is adding strings to the global string list
@@ -71,59 +79,50 @@ static void find_globals(void) {
     // For each top level node in the syntax tree, create symbols for global variables, arrays and functions.
     for (size_t i = 0; i < root->n_children; i++) {
         node_t *node = root->children[i];
-        switch (node->type) {
-            case DECLARATION: {
-                assert(node->n_children > 0);
-                // Iterate through all global variables, and add them to the global symbol table
-                for (size_t j = 0; j < node->n_children; j++) {
-                    node_t *child = node->children[j];
-                    if (child->type == IDENTIFIER_DATA) {
-                        symbol_t *global_variable_symbol = malloc(sizeof(symbol_t));
-                        global_variable_symbol->name = child->data;
-                        global_variable_symbol->type = SYMBOL_GLOBAL_VAR;
-                        symbol_table_insert(global_symbols, global_variable_symbol);
-                    }
+        if (node->type == DECLARATION) {
+            assert(node->n_children > 0);
+            // Iterate through all global variables, and add them to the global symbol table
+            for (size_t j = 0; j < node->n_children; j++) {
+                node_t *child = node->children[j];
+                if (child->type == IDENTIFIER_DATA) {
+                    symbol_t *global_variable_symbol = malloc(sizeof(symbol_t));
+                    global_variable_symbol->name = child->data;
+                    global_variable_symbol->type = SYMBOL_GLOBAL_VAR;
+                    symbol_table_insert(global_symbols, global_variable_symbol);
                 }
             }
-
-            case ARRAY_DECLARATION: {
-                assert(node->n_children == 2);
-                // Iterate through all global arrays, and add them to the global symbol table
-                for (size_t j = 0; j < node->n_children; j++) {
-                    node_t *child = node->children[j];
-                    if (child->type == ARRAY_DECLARATION) {
-                        symbol_t *global_array_symbol = malloc(sizeof(symbol_t));
-                        global_array_symbol->name = child->data;
-                        global_array_symbol->type = SYMBOL_GLOBAL_ARRAY;
-                        symbol_table_insert(global_symbols, global_array_symbol);
-                    }
+        } else if (node->type == ARRAY_DECLARATION) {
+            assert(node->n_children == 2);
+            // Iterate through all global arrays, and add them to the global symbol table
+            for (size_t j = 0; j < node->n_children; j++) {
+                node_t *child = node->children[j];
+                if (child->type == ARRAY_DECLARATION) {
+                    symbol_t *global_array_symbol = malloc(sizeof(symbol_t));
+                    global_array_symbol->name = child->data;
+                    global_array_symbol->type = SYMBOL_GLOBAL_ARRAY;
+                    symbol_table_insert(global_symbols, global_array_symbol);
                 }
             }
-            case FUNCTION: {
-                assert(node->n_children == 3);
-                // Iterate through all functions, and add them to the global symbol table
-                symbol_t *function_symbol = malloc(sizeof(symbol_t));
-                node_t *symbol_name = node->children[0];
-                function_symbol->name = symbol_name->data;
-                function_symbol->type = SYMBOL_FUNCTION;
-                symbol_table_insert(global_symbols, function_symbol);
+        } else if (node->type == FUNCTION) {
+            assert(node->n_children == 3);
+            // Iterate through all functions, and add them to the global symbol table
+            symbol_t *function_symbol = malloc(sizeof(symbol_t));
+            node_t *function_identifier = node->children[0];
+            function_symbol->name = function_identifier->data;
+            function_symbol->type = SYMBOL_FUNCTION;
+            symbol_table_insert(global_symbols, function_symbol);
 
-                // Create a local symbol table for the function, and add all its parameters and local variables to it
-                function_symbol->function_symtable = symbol_table_init();
-                node_t *parameter_list = node->children[1];
-                for (size_t j = 0; j < parameter_list->n_children; j++) {
-                    node_t *identifier = parameter_list->children[j];
-                    assert(identifier->type == IDENTIFIER_DATA);
+            // Create a local symbol table for the function, and add all its parameters and local variables to it
+            function_symbol->function_symtable = symbol_table_init();
+            node_t *parameter_list = node->children[1];
+            for (size_t j = 0; j < parameter_list->n_children; j++) {
+                node_t *identifier = parameter_list->children[j];
+                assert(identifier->type == IDENTIFIER_DATA);
 
-                    symbol_t *parameter_symbol = malloc(sizeof(symbol_t));
-                    parameter_symbol->name = identifier->data;
-                    parameter_symbol->type = SYMBOL_PARAMETER;
-                    symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
-                }
-
-                // TODO: Bind names
-                node_t *function_body = node->children[2];
-                bind_names(function_symbol->function_symtable, function_body);
+                symbol_t *parameter_symbol = malloc(sizeof(symbol_t));
+                parameter_symbol->name = identifier->data;
+                parameter_symbol->type = SYMBOL_PARAMETER;
+                symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
             }
         }
     }
@@ -147,15 +146,17 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
     // TODO: Output the given symbol table
-    // TIP: Use SYMBOL_TYPE_NAMES[ my_symbol->type ] to get a human readable string for each symbol type
+    // TIP: Use SYMBOL_TYPE_NAMES[symbol->type] to get a human readable string for each symbol type
 
     for (int i = 0; i < table->n_symbols; i++) {
         symbol_t *symbol = table->symbols[i];
 
-        printf("%d: %s(%s)", i, SYMBOL_TYPE_NAMES[symbol->type], symbol->name);
+        if (symbol != NULL) {
+            printf("%*s %d: %s(%s)\n", nesting, "", i, SYMBOL_TYPE_NAMES[symbol->type], symbol->name);
 
-        if (symbol->type == SYMBOL_FUNCTION) {
-            print_symbol_table(symbol->function_symtable, nesting + 1);
+            if (symbol->type == SYMBOL_FUNCTION) {
+                print_symbol_table(symbol->function_symtable, nesting + 3);
+            }
         }
     }
 }
