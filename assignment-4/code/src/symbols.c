@@ -33,7 +33,6 @@ void create_tables(void) {
     //  This should be performed by bind_names(function symbol table, function body AST node)
     //  It also handles adding local variables to the local symbol table, and pushing and popping scopes.
     //  A final task performed by bind_names(), is adding strings to the global string list
-    // TODO: Comment / uncomment this when testing
     for (size_t i = 0; i < root->n_children; i++) {
         node_t *node = root->children[i];
         if (node->type == FUNCTION) {
