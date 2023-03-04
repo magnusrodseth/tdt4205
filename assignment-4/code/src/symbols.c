@@ -93,16 +93,12 @@ static void find_globals(void) {
             }
         } else if (node->type == ARRAY_DECLARATION) {
             assert(node->n_children == 2);
-            // Iterate through all global arrays, and add them to the global symbol table
-            for (size_t j = 0; j < node->n_children; j++) {
-                node_t *child = node->children[j];
-                if (child->type == ARRAY_DECLARATION) {
-                    symbol_t *global_array_symbol = malloc(sizeof(symbol_t));
-                    global_array_symbol->name = child->data;
-                    global_array_symbol->type = SYMBOL_GLOBAL_ARRAY;
-                    symbol_table_insert(global_symbols, global_array_symbol);
-                }
-            }
+
+            symbol_t *global_array_symbol = malloc(sizeof(symbol_t));
+            node_t *identifier = node->children[0];
+            global_array_symbol->name = identifier->data;
+            global_array_symbol->type = SYMBOL_GLOBAL_ARRAY;
+            symbol_table_insert(global_symbols, global_array_symbol);
         } else if (node->type == FUNCTION) {
             assert(node->n_children == 3);
             // Iterate through all functions, and add them to the global symbol table
@@ -145,9 +141,7 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
  * When printing function symbols, its local symbol table is recursively printed, with indentation.
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
-    // TODO: Output the given symbol table
-    // TIP: Use SYMBOL_TYPE_NAMES[symbol->type] to get a human readable string for each symbol type
-
+    // TODO: Fix formatting of printing, and then add a check in Makefile for correct against suggested (like PS2)
     for (int i = 0; i < table->n_symbols; i++) {
         symbol_t *symbol = table->symbols[i];
 

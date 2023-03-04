@@ -4,7 +4,8 @@
  3: FUNCTION(main)
     0: PARAMETER(x)
     1: PARAMETER(y)
- 4: FUNCTION(other)
+ 4: GLOBAL_ARRAY(arr)
+ 5: FUNCTION(other)
 
  == STRING LIST == 
 

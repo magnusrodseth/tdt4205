@@ -1,10 +1,11 @@
  0: GLOBAL_VAR(a)
  1: GLOBAL_VAR(b)
- 2: FUNCTION(main)
- 3: GLOBAL_VAR(x)
- 4: GLOBAL_VAR(y)
- 5: GLOBAL_VAR(z)
- 6: FUNCTION(otherFunction)
+ 2: GLOBAL_ARRAY(array)
+ 3: FUNCTION(main)
+ 4: GLOBAL_VAR(x)
+ 5: GLOBAL_VAR(y)
+ 6: GLOBAL_VAR(z)
+ 7: FUNCTION(otherFunction)
 
  == STRING LIST == 
 
