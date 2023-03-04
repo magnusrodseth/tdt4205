@@ -11,13 +11,12 @@ static insert_result_t symbol_hashmap_insert(symbol_hashmap_t *hashmap, symbol_t
 // ================== Symbol table code =================
 // Initializes a symboltable with 0 entries. Will be resized upon first insertion
 symbol_table_t *symbol_table_init(void) {
-    symbol_table_t *result = malloc(sizeof(symbol_table_t));
-    *result = (symbol_table_t){
-        .symbols = NULL,
-        .n_symbols = 0,
-        .capacity = 0,
-        .hashmap = symbol_hashmap_init()};
-    return result;
+    symbol_table_t *table = malloc(sizeof(symbol_table_t));
+    table->symbols = NULL;
+    table->n_symbols = 0;
+    table->capacity = 0;
+    table->hashmap = symbol_hashmap_init();
+    return table;
 }
 
 // Adds a symbol to both the symbol table, and its hashmap (if possible)
@@ -52,13 +51,12 @@ void symbol_table_destroy(symbol_table_t *table) {
 
 // Initializes a hashmap with 0 buckets. Will be resized upon first insertion
 symbol_hashmap_t *symbol_hashmap_init() {
-    symbol_hashmap_t *result = malloc(sizeof(symbol_hashmap_t));
-    *result = (symbol_hashmap_t){
-        .buckets = NULL,
-        .n_buckets = 0,
-        .n_entries = 0,
-        .backup = NULL};
-    return result;
+    symbol_hashmap_t *map = malloc(sizeof(symbol_hashmap_t));
+    map->buckets = NULL;
+    map->n_buckets = 0;
+    map->n_entries = 0;
+    map->backup = NULL;
+    return map;
 }
 
 // Calculates a naive 64-bit hash of the given string

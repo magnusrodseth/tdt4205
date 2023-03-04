@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "assert.h"
+
 /* Definition of the tree node type, and functions for handling the parse tree */
 #include "tree.h"
 

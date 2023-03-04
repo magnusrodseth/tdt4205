@@ -37,8 +37,3 @@ ps2-check: ps2
 	cd ps2-parser; \
 	find * -name "*.suggested" | awk -F. '{print $$1"."$$2 " " $$0}' | xargs -L 1 diff -s --unified=0
 	@echo "No differences found in PS2!"
-
-ps4-check: ps4
-	cd ps4-symbols; \
-	find * -name "suggested/*.symbols" | awk -F. '{print $$1"."$$2 " " $$0}' | xargs -L 1 diff -s --unified=0
-	@echo "No differences found in PS4!"

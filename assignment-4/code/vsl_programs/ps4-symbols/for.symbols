@@ -1,0 +1,69 @@
+ main: FUNCTION
+ == STRING LIST == 
+
+ == BOUND SYNTAX TREE == 
+GLOBAL_LIST
+ FUNCTION
+  IDENTIFIER_DATA(main)
+  PARAMETER_LIST
+   IDENTIFIER_DATA(a)
+   IDENTIFIER_DATA(b)
+  BLOCK
+   STATEMENT_LIST
+    BLOCK
+     DECLARATION_LIST
+      DECLARATION
+       VARIABLE_LIST
+        IDENTIFIER_DATA(i)
+        IDENTIFIER_DATA(__FOR_END__)
+     STATEMENT_LIST
+      ASSIGNMENT_STATEMENT
+       IDENTIFIER_DATA(i)
+       IDENTIFIER_DATA(a)
+      ASSIGNMENT_STATEMENT
+       IDENTIFIER_DATA(__FOR_END__)
+       EXPRESSION(+)
+        IDENTIFIER_DATA(b)
+        NUMBER_DATA(1)
+      WHILE_STATEMENT
+       RELATION(<)
+        IDENTIFIER_DATA(i)
+        IDENTIFIER_DATA(__FOR_END__)
+       BLOCK
+        STATEMENT_LIST
+         BLOCK
+          DECLARATION_LIST
+           DECLARATION
+            VARIABLE_LIST
+             IDENTIFIER_DATA(j)
+             IDENTIFIER_DATA(__FOR_END__)
+          STATEMENT_LIST
+           ASSIGNMENT_STATEMENT
+            IDENTIFIER_DATA(j)
+            IDENTIFIER_DATA(i)
+           ASSIGNMENT_STATEMENT
+            IDENTIFIER_DATA(__FOR_END__)
+            EXPRESSION(+)
+             IDENTIFIER_DATA(b)
+             NUMBER_DATA(1)
+           WHILE_STATEMENT
+            RELATION(<)
+             IDENTIFIER_DATA(j)
+             IDENTIFIER_DATA(__FOR_END__)
+            BLOCK
+             STATEMENT_LIST
+              PRINT_STATEMENT
+               STRING_DATA("i = ")
+               IDENTIFIER_DATA(i)
+               STRING_DATA(", j = ")
+               IDENTIFIER_DATA(j)
+              ASSIGNMENT_STATEMENT
+               IDENTIFIER_DATA(j)
+               EXPRESSION(+)
+                IDENTIFIER_DATA(j)
+                NUMBER_DATA(1)
+         ASSIGNMENT_STATEMENT
+          IDENTIFIER_DATA(i)
+          EXPRESSION(+)
+           IDENTIFIER_DATA(i)
+           NUMBER_DATA(1)

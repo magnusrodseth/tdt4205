@@ -27,7 +27,8 @@ typedef struct symbol {
     node_t *node;            // The AST node that defined this symbol ( not owned )
     size_t sequence_number;  // Sequence number in the symbol table this symbol belongs to
 
-    /** Global variables and arrays have function_symtable = NULL
+    /**
+     * Global variables and arrays have function_symtable = NULL
      * Functions point to their own symbol tables here, but the function itself is a global symbol
      * Parameters and local variables point to the function_symtable they belong to
      **/
