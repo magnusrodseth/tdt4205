@@ -1,4 +1,4 @@
- 0: FUNCTION(main)
+0: FUNCTION(main)
     0: PARAMETER(a)
     1: PARAMETER(b)
 

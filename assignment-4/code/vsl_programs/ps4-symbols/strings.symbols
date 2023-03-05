@@ -1,5 +1,5 @@
- 0: FUNCTION(main)
- 1: FUNCTION(printNewlines)
+0: FUNCTION(main)
+1: FUNCTION(printNewlines)
 
  == STRING LIST == 
 0: "Hello "

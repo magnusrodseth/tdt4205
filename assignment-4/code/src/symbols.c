@@ -123,16 +123,12 @@ static void find_globals(void) {
 
 /**
  * A recursive function that traverses the body of a function, and:
- *  - Adds variable declarations to the function's local symbol table.
- *  - Pushes and pops local variable scopes when entering blocks.
- *  - Binds identifiers to the symbol it references.
- *  - Inserts STRING_DATA nodes' data into the global string list, and replaces it with its list position.
+ *  - ✅ Adds variable declarations to the function's local symbol table.
+ *  - 🚧 Pushes and pops local variable scopes when entering blocks.
+ *  - 🚧 Binds identifiers to the symbol it references.
+ *  - ✅ Inserts STRING_DATA nodes' data into the global string list, and replaces it with its list position.
  */
 static void bind_names(symbol_table_t *local_symbols, node_t *node) {
-    // TODO: Implement bind_names, doing all the things described above
-    // Tip: See symbol_hashmap_init() in symbol_table.h, to make new hashmaps for new scopes.
-    // Remember the symbol_hashmap_t's backup pointer, allowing you to make linked lists.
-
     // Recursively traverse the body of the function (from the provided node)
     for (size_t i = 0; i < node->n_children; i++) {
         node_t *child = node->children[i];
@@ -151,8 +147,16 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
 
         // Any identifier that is not a variable declaration, is a symbol reference, and
         // should be bound to the symbol it references.
-        // TODO
+        // TODO:
+        // else if (child->type == IDENTIFIER_DATA) {
+        //     symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, child->data);
+        //     if (symbol == NULL) {
+        //         symbol = symbol_hashmap_lookup(global_symbols->hashmap, child->data);
+        //     }
+        //     child->symbol = symbol;
+        // }
 
+        // TODO: I don't think this is quite correct yet.
         else if (child->type == BLOCK) {
             symbol_hashmap_t *new_scope = symbol_hashmap_init();
             new_scope->backup = local_symbols->hashmap;
@@ -173,15 +177,17 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
  * When printing function symbols, its local symbol table is recursively printed, with indentation.
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
-    // TODO: Fix formatting of printing, and then add a check in Makefile for correct against suggested (like PS2)
+    int max_num_digits = snprintf(NULL, 0, "%d", table->n_symbols - 1);
+
     for (int i = 0; i < table->n_symbols; i++) {
         symbol_t *symbol = table->symbols[i];
 
         if (symbol != NULL) {
-            printf("%*s %d: %s(%s)\n", nesting, "", i, SYMBOL_TYPE_NAMES[symbol->type], symbol->name);
+            // Ensure the symbol table is printed with correct indentation
+            printf("%*s%*d: %s(%s)\n", nesting, "", max_num_digits, i, SYMBOL_TYPE_NAMES[symbol->type], symbol->name);
 
             if (symbol->type == SYMBOL_FUNCTION) {
-                print_symbol_table(symbol->function_symtable, nesting + 3);
+                print_symbol_table(symbol->function_symtable, nesting + 4);
             }
         }
     }
@@ -190,18 +196,16 @@ static void print_symbol_table(symbol_table_t *table, int nesting) {
 /* Frees up the memory used by the global symbol table, all local symbol tables, and their symbols */
 static void destroy_symbol_tables(void) {
     // TODO: Implement cleanup. All symbols in the program are owned by exactly one symbol table.
-
-    // for (int i = 0; i < global_symbols->n_symbols; i++) {
+    // for (size_t i = 0; i < global_symbols->n_symbols; i++) {
     //     symbol_t *symbol = global_symbols->symbols[i];
-    //     if (symbol == NULL) {
-    //         continue;
+    //     if (symbol != NULL) {
+    //         if (symbol->type == SYMBOL_FUNCTION) {
+    //             if (symbol->function_symtable != NULL) {
+    //                 symbol_table_destroy(symbol->function_symtable);
+    //             }
+    //         }
+    //         free(symbol);
     //     }
-
-    //     if (symbol->type == SYMBOL_FUNCTION) {
-    //         symbol_table_destroy(symbol->function_symtable);
-    //     }
-
-    //     free(symbol);
     // }
 
     // symbol_table_destroy(global_symbols);

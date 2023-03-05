@@ -1,13 +1,13 @@
- 0: GLOBAL_VAR(x)
- 1: GLOBAL_VAR(y)
- 2: GLOBAL_VAR(z)
- 3: FUNCTION(main)
+0: GLOBAL_VAR(x)
+1: GLOBAL_VAR(y)
+2: GLOBAL_VAR(z)
+3: FUNCTION(main)
     0: PARAMETER(x)
     1: PARAMETER(y)
     2: LOCAL_VAR(x)
     3: LOCAL_VAR(y)
- 4: GLOBAL_ARRAY(arr)
- 5: FUNCTION(other)
+4: GLOBAL_ARRAY(arr)
+5: FUNCTION(other)
 
  == STRING LIST == 
 
