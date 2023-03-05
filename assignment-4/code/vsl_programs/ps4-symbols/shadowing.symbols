@@ -4,6 +4,8 @@
  3: FUNCTION(main)
     0: PARAMETER(x)
     1: PARAMETER(y)
+    2: LOCAL_VAR(x)
+    3: LOCAL_VAR(y)
  4: GLOBAL_ARRAY(arr)
  5: FUNCTION(other)
 

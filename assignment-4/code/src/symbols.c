@@ -92,7 +92,6 @@ static void find_globals(void) {
             }
         } else if (node->type == ARRAY_DECLARATION) {
             assert(node->n_children == 2);
-
             symbol_t *global_array_symbol = malloc(sizeof(symbol_t));
             node_t *identifier = node->children[0];
             global_array_symbol->name = identifier->data;
@@ -138,23 +137,27 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     for (size_t i = 0; i < node->n_children; i++) {
         node_t *child = node->children[i];
 
-        // if (child->type == DECLARATION) {
-        //     for (size_t j = 0; j < child->n_children; j++) {
-        //         node_t *variable = child->children[j];
-        //         symbol_t *variable_symbol = malloc(sizeof(symbol_t));
-        //         variable_symbol->name = variable->data;
-        //         variable_symbol->type = SYMBOL_LOCAL_VAR;
-        //         symbol_table_insert(local_symbols, variable_symbol);
-        //         variable->symbol = variable_symbol;
-        //     }
-        // }
+        if (child->type == DECLARATION) {
+            for (size_t j = 0; j < child->n_children; j++) {
+                node_t *second_child = child->children[j];
+                if (second_child->type == IDENTIFIER_DATA) {
+                    symbol_t *local_variable_symbol = malloc(sizeof(symbol_t));
+                    local_variable_symbol->name = second_child->data;
+                    local_variable_symbol->type = SYMBOL_LOCAL_VAR;
+                    symbol_table_insert(local_symbols, local_variable_symbol);
+                }
+            }
+        }
 
-        // else if (child->type == BLOCK) {
-        //     symbol_hashmap_t *new_scope = symbol_hashmap_init();
-        //     new_scope->backup = local_symbols->hashmap;
-        //     local_symbols->hashmap = new_scope;
-        if (child->type == STRING_DATA) {
-            // ✅ should be good
+        // Any identifier that is not a variable declaration, is a symbol reference, and
+        // should be bound to the symbol it references.
+        // TODO
+
+        else if (child->type == BLOCK) {
+            symbol_hashmap_t *new_scope = symbol_hashmap_init();
+            new_scope->backup = local_symbols->hashmap;
+            local_symbols->hashmap = new_scope;
+        } else if (child->type == STRING_DATA) {
             size_t position = add_string(child->data);
             int64_t *data = malloc(sizeof(int64_t));
             *data = position;
@@ -200,6 +203,8 @@ static void destroy_symbol_tables(void) {
 
     //     free(symbol);
     // }
+
+    // symbol_table_destroy(global_symbols);
 }
 
 /**

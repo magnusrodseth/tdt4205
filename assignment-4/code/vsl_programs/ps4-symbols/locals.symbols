@@ -2,7 +2,15 @@
     0: PARAMETER(a)
     1: PARAMETER(b)
     2: PARAMETER(c)
+    3: LOCAL_VAR(x)
+    4: LOCAL_VAR(y)
+    5: LOCAL_VAR(z)
+    6: LOCAL_VAR(X)
+    7: LOCAL_VAR(Y)
  1: FUNCTION(otherFunc)
+    0: LOCAL_VAR(x)
+    1: LOCAL_VAR(y)
+    2: LOCAL_VAR(z)
 
  == STRING LIST == 
 
