@@ -122,6 +122,29 @@ static void find_globals(void) {
 }
 
 /**
+ * @brief Binds all identifiers in a function body to their symbol table entries.
+ *
+ * Performs a recursive traversal of the function body.
+ *
+ * @param local_symbols is the symbol table for the function.
+ * @param node is the current node in the traversal.
+ */
+static void bind_declaration(symbol_table_t *local_symbols, node_t *node) {
+    for (size_t i = 0; i < node->n_children; i++) {
+        node_t *child = node->children[i];
+
+        if (child->type == IDENTIFIER_DATA) {
+            symbol_t *local_variable_symbol = malloc(sizeof(symbol_t));
+            local_variable_symbol->name = child->data;
+            local_variable_symbol->type = SYMBOL_LOCAL_VAR;
+            symbol_table_insert(local_symbols, local_variable_symbol);
+        }
+
+        bind_declaration(local_symbols, child);
+    }
+}
+
+/**
  * A recursive function that traverses the body of a function, and:
  *  - ✅ Adds variable declarations to the function's local symbol table.
  *  - 🚧 Pushes and pops local variable scopes when entering blocks.
@@ -134,34 +157,34 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
         node_t *child = node->children[i];
 
         if (child->type == DECLARATION) {
-            for (size_t j = 0; j < child->n_children; j++) {
-                node_t *second_child = child->children[j];
-                if (second_child->type == IDENTIFIER_DATA) {
-                    symbol_t *local_variable_symbol = malloc(sizeof(symbol_t));
-                    local_variable_symbol->name = second_child->data;
-                    local_variable_symbol->type = SYMBOL_LOCAL_VAR;
-                    symbol_table_insert(local_symbols, local_variable_symbol);
-                }
-            }
+            bind_declaration(local_symbols, child);
         }
+
+        // else if (child->type == ASSIGNMENT_STATEMENT) {
+        //     for (size_t j = 0; j < child->n_children; j++) {
+        //         node_t *second_child = child->children[j];
+        //         if (second_child->type == IDENTIFIER_DATA) {
+        //             symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
+        //             if (symbol == NULL) {
+        //                 symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
+        //             }
+        //             second_child->symbol = symbol;
+        //         }
+        //     }
+        // }
 
         // Any identifier that is not a variable declaration, is a symbol reference, and
         // should be bound to the symbol it references.
         // TODO:
-        // else if (child->type == IDENTIFIER_DATA) {
-        //     symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, child->data);
-        //     if (symbol == NULL) {
-        //         symbol = symbol_hashmap_lookup(global_symbols->hashmap, child->data);
-        //     }
-        //     child->symbol = symbol;
-        // }
 
         // TODO: I don't think this is quite correct yet.
         else if (child->type == BLOCK) {
             symbol_hashmap_t *new_scope = symbol_hashmap_init();
+            // Insert new hashmap into the linked list
             new_scope->backup = local_symbols->hashmap;
             local_symbols->hashmap = new_scope;
         } else if (child->type == STRING_DATA) {
+            // ✅
             size_t position = add_string(child->data);
             int64_t *data = malloc(sizeof(int64_t));
             *data = position;

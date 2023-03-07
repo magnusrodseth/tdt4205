@@ -1,6 +1,10 @@
 0: FUNCTION(main)
     0: PARAMETER(a)
     1: PARAMETER(b)
+    2: LOCAL_VAR(i)
+    3: LOCAL_VAR(__FOR_END__)
+    4: LOCAL_VAR(j)
+    5: LOCAL_VAR(__FOR_END__)
 
  == STRING LIST == 
 0: "i = "
