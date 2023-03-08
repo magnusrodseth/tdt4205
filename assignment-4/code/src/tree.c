@@ -111,10 +111,6 @@ static void node_finalize(node_t *discard) {
         free(discard->data);
     }
 
-    if (discard->symbol != NULL) {
-        free(discard->symbol);
-    }
-
     if (discard->children != NULL) {
         free(discard->children);
     }

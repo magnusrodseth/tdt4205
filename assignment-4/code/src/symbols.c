@@ -163,23 +163,25 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
                 bind_declaration(local_symbols, child);
                 break;
             }
-            // case ASSIGNMENT_STATEMENT:
-            // case EXPRESSION:
-            // case RELATION:
-            // case PRINT_STATEMENT:
-            //     for (size_t j = 0; j < child->n_children; j++) {
-            //         node_t *second_child = child->children[j];
-            //         if (second_child->type == IDENTIFIER_DATA) {
-            //             symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
-            //             if (symbol == NULL) {
-            //                 symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
-            //             }
+            case ASSIGNMENT_STATEMENT:
+            case EXPRESSION:
+            case RELATION:
+            case PRINT_STATEMENT: {
+                for (size_t j = 0; j < child->n_children; j++) {
+                    node_t *second_child = child->children[j];
+                    if (second_child->type == IDENTIFIER_DATA) {
+                        symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
+                        if (symbol == NULL) {
+                            symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
+                        }
 
-            //             second_child->symbol = symbol;
-            //         }
-            //     }
-            //     break;
+                        second_child->symbol = symbol;
+                    }
+                }
+                break;
+            }
             case BLOCK: {
+                // TODO: This linked list of hashmaps is not quite correct. See shadowing.symbols.
                 symbol_hashmap_t *new_scope = symbol_hashmap_init();
                 // Insert new hashmap into the linked list
                 new_scope->backup = local_symbols->hashmap;

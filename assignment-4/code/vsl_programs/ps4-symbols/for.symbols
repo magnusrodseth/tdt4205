@@ -26,17 +26,17 @@ GLOBAL_LIST
        IDENTIFIER_DATA(__FOR_END__)
      STATEMENT_LIST
       ASSIGNMENT_STATEMENT
-       IDENTIFIER_DATA(i)
-       IDENTIFIER_DATA(a)
+       IDENTIFIER_DATA(i) LOCAL_VAR(2)
+       IDENTIFIER_DATA(a) PARAMETER(0)
       ASSIGNMENT_STATEMENT
-       IDENTIFIER_DATA(__FOR_END__)
+       IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(3)
        EXPRESSION(+)
-        IDENTIFIER_DATA(b)
+        IDENTIFIER_DATA(b) PARAMETER(1)
         NUMBER_DATA(1)
       WHILE_STATEMENT
        RELATION(<)
-        IDENTIFIER_DATA(i)
-        IDENTIFIER_DATA(__FOR_END__)
+        IDENTIFIER_DATA(i) LOCAL_VAR(2)
+        IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(3)
        BLOCK
         STATEMENT_LIST
          BLOCK
@@ -46,31 +46,31 @@ GLOBAL_LIST
             IDENTIFIER_DATA(__FOR_END__)
           STATEMENT_LIST
            ASSIGNMENT_STATEMENT
-            IDENTIFIER_DATA(j)
-            IDENTIFIER_DATA(i)
+            IDENTIFIER_DATA(j) LOCAL_VAR(4)
+            IDENTIFIER_DATA(i) LOCAL_VAR(2)
            ASSIGNMENT_STATEMENT
-            IDENTIFIER_DATA(__FOR_END__)
+            IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(5)
             EXPRESSION(+)
-             IDENTIFIER_DATA(b)
+             IDENTIFIER_DATA(b) PARAMETER(1)
              NUMBER_DATA(1)
            WHILE_STATEMENT
             RELATION(<)
-             IDENTIFIER_DATA(j)
-             IDENTIFIER_DATA(__FOR_END__)
+             IDENTIFIER_DATA(j) LOCAL_VAR(4)
+             IDENTIFIER_DATA(__FOR_END__) LOCAL_VAR(5)
             BLOCK
              STATEMENT_LIST
               PRINT_STATEMENT
                STRING_DATA(#0)
-               IDENTIFIER_DATA(i)
+               IDENTIFIER_DATA(i) LOCAL_VAR(2)
                STRING_DATA(#1)
-               IDENTIFIER_DATA(j)
+               IDENTIFIER_DATA(j) LOCAL_VAR(4)
               ASSIGNMENT_STATEMENT
-               IDENTIFIER_DATA(j)
+               IDENTIFIER_DATA(j) LOCAL_VAR(4)
                EXPRESSION(+)
-                IDENTIFIER_DATA(j)
+                IDENTIFIER_DATA(j) LOCAL_VAR(4)
                 NUMBER_DATA(1)
          ASSIGNMENT_STATEMENT
-          IDENTIFIER_DATA(i)
+          IDENTIFIER_DATA(i) LOCAL_VAR(2)
           EXPRESSION(+)
-           IDENTIFIER_DATA(i)
+           IDENTIFIER_DATA(i) LOCAL_VAR(2)
            NUMBER_DATA(1)
