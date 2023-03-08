@@ -12,6 +12,8 @@ static void find_global_function(node_t *node);
 static void find_globals(void);
 
 static void bind();
+static void bind_declaration(symbol_table_t *local_symbols, node_t *node);
+static void bind_identifiers_to_symbols(symbol_table_t *local_symbols, node_t *node);
 static void bind_names(symbol_table_t *local_symbols, node_t *root);
 
 static void print_symbol_table(symbol_table_t *table, int nesting);
@@ -180,6 +182,27 @@ static void bind_declaration(symbol_table_t *local_symbols, node_t *node) {
     }
 }
 
+static void bind_identifiers_to_symbols(symbol_table_t *local_symbols, node_t *node) {
+    for (size_t j = 0; j < node->n_children; j++) {
+        node_t *second_child = node->children[j];
+        if (second_child->type == IDENTIFIER_DATA) {
+            symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
+            if (symbol == NULL) {
+                symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
+            }
+
+            second_child->symbol = symbol;
+        }
+    }
+}
+
+static void add_string_to_global_list(node_t *node) {
+    size_t position = add_string(node->data);
+    int64_t *data = malloc(sizeof(int64_t));
+    *data = position;
+    node->data = data;
+}
+
 /**
  * A recursive function that traverses the body of a function, and:
  *  - ✅ Adds variable declarations to the function's local symbol table.
@@ -193,27 +216,15 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
         node_t *child = node->children[i];
 
         switch (child->type) {
-            case DECLARATION: {
+            case DECLARATION:
                 bind_declaration(local_symbols, child);
                 break;
-            }
             case ASSIGNMENT_STATEMENT:
             case EXPRESSION:
             case RELATION:
-            case PRINT_STATEMENT: {
-                for (size_t j = 0; j < child->n_children; j++) {
-                    node_t *second_child = child->children[j];
-                    if (second_child->type == IDENTIFIER_DATA) {
-                        symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
-                        if (symbol == NULL) {
-                            symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
-                        }
-
-                        second_child->symbol = symbol;
-                    }
-                }
+            case PRINT_STATEMENT:
+                bind_identifiers_to_symbols(local_symbols, child);
                 break;
-            }
             case BLOCK: {
                 // TODO: This linked list of hashmaps is not quite correct. See shadowing.symbols.
                 symbol_hashmap_t *new_scope = symbol_hashmap_init();
@@ -222,14 +233,9 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
                 local_symbols->hashmap = new_scope;
                 break;
             }
-            case STRING_DATA: {
-                // ✅
-                size_t position = add_string(child->data);
-                int64_t *data = malloc(sizeof(int64_t));
-                *data = position;
-                child->data = data;
+            case STRING_DATA:
+                add_string_to_global_list(child);
                 break;
-            }
             default:
                 break;
         }
