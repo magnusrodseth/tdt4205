@@ -215,24 +215,12 @@ static node_t *replace_with_child(node_t *node) {
 static node_t *squash_child(node_t *node) {
     assert(node->n_children <= 1);
 
-    if (node->n_children == 0) {
-        return node;
+    if (node->n_children == 1) {
+        node_t *result = node->children[0];
+        result->type = node->type;
+        node_finalize(node);
+        return result;
     }
-
-    // Link child's children to node
-    node_t *child = node->children[0];
-
-    if (child->n_children == 0) {
-        return node;
-    }
-
-    node->children = realloc(node->children, sizeof(node_t *) * child->n_children);
-    for (uint64_t i = 0; i < child->n_children; i++) {
-        node->children[i] = child->children[i];
-    }
-    node->n_children = child->n_children;
-
-    node_finalize(child);
 
     return node;
 }
