@@ -158,40 +158,44 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     for (size_t i = 0; i < node->n_children; i++) {
         node_t *child = node->children[i];
 
-        if (child->type == DECLARATION) {
-            bind_declaration(local_symbols, child);
-        }
-
-        else if (child->type == ASSIGNMENT_STATEMENT || child->type == EXPRESSION || child->type == RELATION || child->type == PRINT_STATEMENT) {
-            for (size_t j = 0; j < child->n_children; j++) {
-                node_t *second_child = child->children[j];
-                if (second_child->type == IDENTIFIER_DATA) {
-                    symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
-                    if (symbol == NULL) {
-                        symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
-                    }
-
-                    second_child->symbol = symbol;
-                }
+        switch (child->type) {
+            case DECLARATION: {
+                bind_declaration(local_symbols, child);
+                break;
             }
-        }
+            // case ASSIGNMENT_STATEMENT:
+            // case EXPRESSION:
+            // case RELATION:
+            // case PRINT_STATEMENT:
+            //     for (size_t j = 0; j < child->n_children; j++) {
+            //         node_t *second_child = child->children[j];
+            //         if (second_child->type == IDENTIFIER_DATA) {
+            //             symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
+            //             if (symbol == NULL) {
+            //                 symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
+            //             }
 
-        // Any identifier that is not a variable declaration, is a symbol reference, and
-        // should be bound to the symbol it references.
-        // TODO:
-
-        // TODO: I don't think this is quite correct yet.
-        else if (child->type == BLOCK) {
-            symbol_hashmap_t *new_scope = symbol_hashmap_init();
-            // Insert new hashmap into the linked list
-            new_scope->backup = local_symbols->hashmap;
-            local_symbols->hashmap = new_scope;
-        } else if (child->type == STRING_DATA) {
-            // ✅
-            size_t position = add_string(child->data);
-            int64_t *data = malloc(sizeof(int64_t));
-            *data = position;
-            child->data = data;
+            //             second_child->symbol = symbol;
+            //         }
+            //     }
+            //     break;
+            case BLOCK: {
+                symbol_hashmap_t *new_scope = symbol_hashmap_init();
+                // Insert new hashmap into the linked list
+                new_scope->backup = local_symbols->hashmap;
+                local_symbols->hashmap = new_scope;
+                break;
+            }
+            case STRING_DATA: {
+                // ✅
+                size_t position = add_string(child->data);
+                int64_t *data = malloc(sizeof(int64_t));
+                *data = position;
+                child->data = data;
+                break;
+            }
+            default:
+                break;
         }
 
         bind_names(local_symbols, child);

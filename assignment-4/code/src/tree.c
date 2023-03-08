@@ -124,6 +124,10 @@ static void node_finalize(node_t *discard) {
 
 /* Recursively frees the memory owned by the given node, and all its children */
 static void destroy_subtree(node_t *discard) {
+    if (discard == NULL) {
+        return;
+    }
+
     if (discard->n_children == 0) {
         node_finalize(discard);
         return;
