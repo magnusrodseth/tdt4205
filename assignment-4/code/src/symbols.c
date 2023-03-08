@@ -7,6 +7,7 @@ size_t string_list_len;
 size_t string_list_capacity;
 
 static void find_globals(void);
+static void bind();
 static void bind_names(symbol_table_t *local_symbols, node_t *root);
 static void print_symbol_table(symbol_table_t *table, int nesting);
 static void destroy_symbol_tables(void);
@@ -24,24 +25,8 @@ static void destroy_string_list(void);
  *  - All strings are entered into the string_list
  */
 void create_tables(void) {
-    //  First, use find_globals() to create the global symbol table.
-    //  As global symbols are added, function symbols get their own local symbol tables as well.
     find_globals();
-
-    //  Once all global symbols are added, go through all function bodies.
-    //  All references to variables and functions by name, should get pointers to the symbols in the table.
-    //  This should be performed by bind_names(function symbol table, function body AST node)
-    //  It also handles adding local variables to the local symbol table, and pushing and popping scopes.
-    //  A final task performed by bind_names(), is adding strings to the global string list
-    for (size_t i = 0; i < root->n_children; i++) {
-        node_t *node = root->children[i];
-        if (node->type == FUNCTION) {
-            assert(node->n_children == 3);
-            node_t *function_body = node->children[2];
-            assert(node->symbol->function_symtable != NULL);
-            bind_names(node->symbol->function_symtable, function_body);
-        }
-    }
+    bind();
 }
 
 /**
@@ -64,6 +49,27 @@ void destroy_tables(void) {
 }
 
 /* Internal matters */
+
+/**
+ * @brief Binds all identifiers in a function body to their symbol table entries.
+ *
+ * Once all global symbols are added, go through all function bodies.
+ * All references to variables and functions by name, should get pointers to the symbols in the table.
+ * This should be performed by bind_names(function symbol table, function body AST node)
+ * It also handles adding local variables to the local symbol table, and pushing and popping scopes.
+ * A final task performed by bind_names(), is adding strings to the global string list
+ */
+static void bind() {
+    for (size_t i = 0; i < root->n_children; i++) {
+        node_t *node = root->children[i];
+        if (node->type == FUNCTION) {
+            assert(node->n_children == 3);
+            node_t *function_body = node->children[2];
+            assert(node->symbol->function_symtable != NULL);
+            bind_names(node->symbol->function_symtable, function_body);
+        }
+    }
+}
 
 /**
  * Goes through all global declarations in the syntax tree, adding them to the global symbol table.
