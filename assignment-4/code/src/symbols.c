@@ -116,6 +116,8 @@ static void find_globals(void) {
                 parameter_symbol->type = SYMBOL_PARAMETER;
                 symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
             }
+
+            // TODO: This should not really be here, I think. But it is necessary for the program to compile currently.
             node->symbol = function_symbol;
         }
     }
@@ -160,18 +162,19 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
             bind_declaration(local_symbols, child);
         }
 
-        // else if (child->type == ASSIGNMENT_STATEMENT) {
-        //     for (size_t j = 0; j < child->n_children; j++) {
-        //         node_t *second_child = child->children[j];
-        //         if (second_child->type == IDENTIFIER_DATA) {
-        //             symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
-        //             if (symbol == NULL) {
-        //                 symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
-        //             }
-        //             second_child->symbol = symbol;
-        //         }
-        //     }
-        // }
+        else if (child->type == ASSIGNMENT_STATEMENT || child->type == EXPRESSION || child->type == RELATION || child->type == PRINT_STATEMENT) {
+            for (size_t j = 0; j < child->n_children; j++) {
+                node_t *second_child = child->children[j];
+                if (second_child->type == IDENTIFIER_DATA) {
+                    symbol_t *symbol = symbol_hashmap_lookup(local_symbols->hashmap, second_child->data);
+                    if (symbol == NULL) {
+                        symbol = symbol_hashmap_lookup(global_symbols->hashmap, second_child->data);
+                    }
+
+                    second_child->symbol = symbol;
+                }
+            }
+        }
 
         // Any identifier that is not a variable declaration, is a symbol reference, and
         // should be bound to the symbol it references.
