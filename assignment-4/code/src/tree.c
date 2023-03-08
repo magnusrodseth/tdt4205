@@ -376,60 +376,73 @@ static node_t *constant_fold_expression(node_t *node) {
  */
 static node_t *replace_for_statement(node_t *for_node) {
     assert(for_node->type == FOR_STATEMENT);
-    assert(for_node->n_children == 4);
 
-    // Extract child nodes from the FOR_STATEMENT
     node_t *variable = for_node->children[0];
     node_t *start_value = for_node->children[1];
     node_t *end_value = for_node->children[2];
     node_t *body = for_node->children[3];
 
-    // To aid in the manual creation of AST nodes, you can create named nodes using the NODE macro
-    // As an example, the following creates the
+    node_finalize(for_node);
+
+    // Make the declaration for both variables
     // var <variable>, __FOR_END__
-    // part of the transformation
     NODE(end_variable, IDENTIFIER_DATA, strdup(FOR_END_VARIABLE), 0);
-    NODE(variable_list, VARIABLE_LIST, NULL, 2, variable, end_variable);
-    NODE(declaration, DECLARATION, NULL, 1, variable_list);
+    NODE(declaration, DECLARATION, NULL, 2, variable, end_variable);
     NODE(declaration_list, DECLARATION_LIST, NULL, 1, declaration);
 
-    // An important thing to note, is that nodes may not be re-used
-    // since that will cause errors when freeing up the syntax tree later.
-    // because we want to use a lot of IDENTIFIER_DATA nodes with the same data, we have the macro
+    // make the assignments
+    // <variable> := <start_value>
+    // __FOR_END__ := <end_value>
     DUPLICATE_VARIABLE(variable);
-    // Now we can use <variable> again, and it will be a new node for the same identifier!
     NODE(init_assignment, ASSIGNMENT_STATEMENT, NULL, 2, variable, start_value);
-    // We do the same whenever we want to reuse <end_variable> as well
     DUPLICATE_VARIABLE(end_variable);
     NODE(end_assignment, ASSIGNMENT_STATEMENT, NULL, 2, end_variable, end_value);
 
-    // Create INCREMENT in STATEMENT_LIST in BLOCK in WHILE_STATEMENT
-    DUPLICATE_VARIABLE(variable);
-    NODE(increment, EXPRESSION, strdup("+"), 2, variable, create_number_node(1));
-    DUPLICATE_VARIABLE(variable);
-    NODE(increment_assignment_statement, ASSIGNMENT_STATEMENT, NULL, 2, variable, increment);
-
-    // Create STATEMENT_LIST in BLOCK in WHILE_STATEMENT
-    NODE(statement_list_in_while_block, STATEMENT_LIST, NULL, 2, body, increment_assignment_statement);
-
-    // Create BLOCK in the WHILE_STATEMENT
-    NODE(while_block, BLOCK, NULL, 1, statement_list_in_while_block);
-
-    // Create the WHILE_STATEMENT
+    // make the relation
+    // <variable> < __FOR_END__
     DUPLICATE_VARIABLE(variable);
     DUPLICATE_VARIABLE(end_variable);
-    NODE(less_than, RELATION, strdup("<"), 2, variable, end_variable);
-    NODE(while_statement, WHILE_STATEMENT, NULL, 2, less_than, while_block);
+    NODE(relation, RELATION, strdup("<"), 2, variable, end_variable);
 
-    // Create the STATEMENT_LIST
-    NODE(statement_list, STATEMENT_LIST, NULL, 3, init_assignment, end_assignment, while_statement);
+    // make the increment statement
+    // <variable> := <variable> + 1
+    DUPLICATE_VARIABLE(variable);
+    int64_t *one = malloc(sizeof(int64_t));
+    *one = 1;
+    NODE(one_node, NUMBER_DATA, one, 0);
+    NODE(variable_plus_one, EXPRESSION, strdup("+"), 2, variable, one_node);
+    DUPLICATE_VARIABLE(variable);
+    NODE(increment, ASSIGNMENT_STATEMENT, NULL, 2, variable, variable_plus_one);
 
-    // Create the root BLOCK node
-    NODE(block, BLOCK, NULL, 2, declaration_list, statement_list);
+    // make a block statement containing both the original for-loop body, and the
+    // increment begin
+    //     <body>
+    //     <variable> := <variable> + 1
+    // end
+    NODE(inner_statement_list, STATEMENT_LIST, NULL, 2, body, increment);
+    NODE(inner_block, BLOCK, NULL, 1, inner_statement_list);
 
-    node_finalize(for_node);
+    // Make the while loop like so:
+    // while <variable> < __FOR_END__ begin
+    //     <body>
+    //     <variable> := <variable> + 1
+    // end
+    NODE(while_node, WHILE_STATEMENT, NULL, 2, relation, inner_block);
 
-    return block;
+    // Put it all together into a statement list
+    // <variable> := <start_value>
+    // __FOR_END__ := <end_value>
+    // while <variable> < __FOR_END__ begin
+    //     <body>
+    //     <variable> := <variable> + 1
+    // end
+    NODE(result_statement_list, STATEMENT_LIST, NULL, 3, init_assignment,
+         end_assignment, while_node);
+
+    // Include the declaration of the two local variables
+    NODE(result, BLOCK, NULL, 2, declaration_list, result_statement_list);
+
+    return result;
 }
 
 static bool all_children_are_numbers(node_t *node) {
