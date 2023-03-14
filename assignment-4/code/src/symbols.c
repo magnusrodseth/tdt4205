@@ -127,7 +127,6 @@ static void find_global_function(node_t *node) {
         symbol_table_insert(function_symbol->function_symtable, parameter_symbol);
     }
 
-    // TODO: This should not really be here, I think. But it is necessary for the program to compile currently.
     node->symbol = function_symbol;
 }
 
@@ -205,10 +204,10 @@ static void add_string_to_global_list(node_t *node) {
 
 /**
  * A recursive function that traverses the body of a function, and:
- *  - ✅ Adds variable declarations to the function's local symbol table.
- *  - 🚧 Pushes and pops local variable scopes when entering blocks.
- *  - 🚧 Binds identifiers to the symbol it references.
- *  - ✅ Inserts STRING_DATA nodes' data into the global string list, and replaces it with its list position.
+ *  - Adds variable declarations to the function's local symbol table.
+ *  - Pushes and pops local variable scopes when entering blocks.
+ *  - Binds identifiers to the symbol it references.
+ *  - Inserts STRING_DATA nodes' data into the global string list, and replaces it with its list position.
  */
 static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     // Recursively traverse the body of the function (from the provided node)
@@ -226,7 +225,6 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
                 bind_identifiers_to_symbols(local_symbols, child);
                 break;
             case BLOCK: {
-                // TODO: This linked list of hashmaps is not quite correct. See shadowing.symbols.
                 symbol_hashmap_t *new_scope = symbol_hashmap_init();
                 // Insert new hashmap into the linked list
                 new_scope->backup = local_symbols->hashmap;
@@ -267,20 +265,16 @@ static void print_symbol_table(symbol_table_t *table, int nesting) {
 
 /* Frees up the memory used by the global symbol table, all local symbol tables, and their symbols */
 static void destroy_symbol_tables(void) {
-    // TODO: Implement cleanup. All symbols in the program are owned by exactly one symbol table.
-    // for (size_t i = 0; i < global_symbols->n_symbols; i++) {
-    //     symbol_t *symbol = global_symbols->symbols[i];
-    //     if (symbol != NULL) {
-    //         if (symbol->type == SYMBOL_FUNCTION) {
-    //             if (symbol->function_symtable != NULL) {
-    //                 symbol_table_destroy(symbol->function_symtable);
-    //             }
-    //         }
-    //         free(symbol);
-    //     }
-    // }
+    for (size_t i = 0; i < global_symbols->n_symbols; i++) {
+        symbol_t *symbol = global_symbols->symbols[i];
+        if (symbol != NULL) {
+            if (symbol->type == SYMBOL_FUNCTION) {
+                symbol_table_destroy(symbol->function_symtable);
+            }
+        }
+    }
 
-    // symbol_table_destroy(global_symbols);
+    symbol_table_destroy(global_symbols);
 }
 
 /**

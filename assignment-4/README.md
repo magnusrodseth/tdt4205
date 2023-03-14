@@ -39,3 +39,12 @@ make purge && make
 # Run Valgrind on a specific .vsl file
 valgrind src/vslc < vsl_programs/ps4-symbols/<filename>.vsl
 ```
+
+### Important to note
+
+The delivered code is **almost** fully correct. The two discrepancies I have noticed are:
+
+- The function reference in the `BOUND SYNTAX TREE` in the `*.symbols` file refer to the symbol table entry. This does not happen in the `suggested/*.symbols` files.
+- Some of the references in the `shadowing.symbols` file are not correct, compared to what is defined in `suggested/shadowing.symbols`.
+
+Besides these two discrepancies, I have not been able to find any other errors.
