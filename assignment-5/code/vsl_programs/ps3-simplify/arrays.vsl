@@ -1,0 +1,10 @@
+
+// Sizes must be computed at compile time
+var array[10*10+2]
+
+func main(x, y) begin
+    // array indexing can both be the target of an assignment
+    array[2] := 20
+    // and used in an expression
+    print array[array[x] + y]
+end

@@ -1,0 +1,6 @@
+
+func main(a, b) begin
+    for i in a..b+1 do
+        for j in i..b+1 do
+            print "i = ", i, ", j = ", j
+end

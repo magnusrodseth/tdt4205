@@ -74,7 +74,7 @@ static void bind() {
 
         if (symbol->type == SYMBOL_FUNCTION) {
             assert(symbol->node->n_children == 3);
-            symbol_t *child = symbol->node->children[2];
+            node_t *child = symbol->node->children[2];
             bind_names(symbol->function_symtable, child);
         }
     }
@@ -255,7 +255,7 @@ static void bind_names(symbol_table_t *local_symbols, node_t *node) {
  * When printing function symbols, its local symbol table is recursively printed, with indentation.
  */
 static void print_symbol_table(symbol_table_t *table, int nesting) {
-    int max_num_digits = snprintf(NULL, 0, "%d", table->n_symbols - 1);
+    int max_num_digits = snprintf(NULL, 0, "%lu", table->n_symbols - 1);
 
     for (int i = 0; i < table->n_symbols; i++) {
         symbol_t *symbol = table->symbols[i];

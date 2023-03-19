@@ -1,0 +1,14 @@
+PROGRAM
+ GLOBAL_LIST
+  GLOBAL
+   FUNCTION
+    IDENTIFIER_DATA(main)
+    PARAMETER_LIST
+    STATEMENT
+     BLOCK
+      STATEMENT_LIST
+       STATEMENT
+        PRINT_STATEMENT
+         PRINT_LIST
+          PRINT_ITEM
+           STRING_DATA("Hello, World!")
