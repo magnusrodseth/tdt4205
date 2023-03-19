@@ -87,13 +87,11 @@ static void find_global_declaration(node_t *node) {
     // Iterate through all global variables, and add them to the global symbol table
     for (size_t j = 0; j < node->n_children; j++) {
         node_t *child = node->children[j];
-        if (child->type == IDENTIFIER_DATA) {
-            symbol_t *global_variable_symbol = malloc(sizeof(symbol_t));
-            global_variable_symbol->name = child->data;
-            global_variable_symbol->type = SYMBOL_GLOBAL_VAR;
-            global_variable_symbol->node = child;
-            symbol_table_insert(global_symbols, global_variable_symbol);
-        }
+        symbol_t *global_variable_symbol = malloc(sizeof(symbol_t));
+        global_variable_symbol->name = child->data;
+        global_variable_symbol->type = SYMBOL_GLOBAL_VAR;
+        global_variable_symbol->node = child;
+        symbol_table_insert(global_symbols, global_variable_symbol);
     }
 }
 
@@ -229,18 +227,15 @@ static void pop_local_scope(symbol_table_t *table) {
  */
 static void bind_names(symbol_table_t *local_symbols, node_t *node) {
     switch (node->type) {
-        case IDENTIFIER_DATA: {
+        case IDENTIFIER_DATA:
             bind_identifier(local_symbols, node);
             break;
-        }
-        case BLOCK: {
+        case BLOCK:
             bind_block(local_symbols, node);
             break;
-        }
-        case STRING_DATA: {
+        case STRING_DATA:
             add_string_to_global_list(node);
             break;
-        }
         default: {
             for (int i = 0; i < node->n_children; i++) {
                 bind_names(local_symbols, node->children[i]);

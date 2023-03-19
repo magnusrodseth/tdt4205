@@ -75,9 +75,10 @@ static void generate_global_variables(void) {
             assert(array_node->type == ARRAY_DECLARATION && array_node->n_children == 2);
 
             // The array_node’s second child should be a NUMBER_DATA node containing the length of the array.
+            // TODO: This is not the correct length
             node_t *length_node = array_node->children[1];
             assert(length_node->type == NUMBER_DATA);
-            int length = length_node->data;
+            int length = (int)atoi(length_node->data);
 
             // Use the `.zero` directive to set aside the correct amount of space.
             // Multiply the length by 8, to get the array size in bytes.

@@ -6,4 +6,4 @@ string0: .asciz "The values of the array are:"
 
 .section .bss
 .align 8
-.array: .zero 425329408
+.array: .zero 0
