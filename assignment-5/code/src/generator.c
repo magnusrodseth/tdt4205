@@ -60,18 +60,19 @@ static void generate_global_variables(void) {
     // Remember to mangle the name in some way, to avoid collisions if a variable is called e.g. "main"
     DIRECTIVE(".section .bss");
     DIRECTIVE(".align 8");
+    const int VARIABLE_SIZE_IN_BYTES = 8;
 
     for (int i = 0; i < global_symbols->n_symbols; i++) {
         symbol_t *symbol = global_symbols->symbols[i];
 
         if (symbol->type == SYMBOL_GLOBAL_VAR) {
             // Normal global variables take up 8 bytes, so we set aside 8 bytes using `.zero 8`
-            DIRECTIVE(".%s: .zero 8", symbol->name);
+            DIRECTIVE(".%s: .zero %d", symbol->name, VARIABLE_SIZE_IN_BYTES);
         } else if (symbol->type == SYMBOL_GLOBAL_ARRAY) {
             // Arrays can take up multiple 8 byte values, so we need to compute their total size.
             // Array symbols store a pointer to their definition in the `node` field.
             node_t *array_node = symbol->node;
-            assert(array_node->type == ARRAY_DECLARATION);
+            assert(array_node->type == ARRAY_DECLARATION && array_node->n_children == 2);
 
             // The array_node’s second child should be a NUMBER_DATA node containing the length of the array.
             node_t *length_node = array_node->children[1];
@@ -80,7 +81,7 @@ static void generate_global_variables(void) {
 
             // Use the `.zero` directive to set aside the correct amount of space.
             // Multiply the length by 8, to get the array size in bytes.
-            DIRECTIVE(".%s: .zero %d", symbol->name, length * 8);
+            DIRECTIVE(".%s: .zero %d", symbol->name, length * VARIABLE_SIZE_IN_BYTES);
         }
     }
 }

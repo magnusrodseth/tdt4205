@@ -6,5 +6,4 @@ string0: .asciz "The values of the array are:"
 
 .section .bss
 .align 8
-Length of array array is 21676128
-.array: .zero 173409024
+.array: .zero 425329408
