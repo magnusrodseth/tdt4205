@@ -2,10 +2,30 @@
 
 ## 1 - Assembly programming
 
-> TODO: Do this exercise
+The deliverable for the assembly programming can be found in the [`assembly`](./assembly) directory. Please see the attached implementation details. Run the application using:
 
-The deliverable for the theoretical questions can be found in the file [`theory/ps5.pdf`](./theory/ps5.pdf).
+```sh
+# Navigate to the `assembly` directory
+cd assembly
+
+# Run the application
+make
+```
 
 ## 2 - Code Generation Part I
 
-> TODO: Fill out when ready
+The deliverable for the code generation can be found in the [`code`](./code/) directory. Please see the attached implementation details. Run the application using:
+
+```sh
+# Navigate to the code
+cd code
+
+# Clean and compile source code
+make purge && make
+
+# Navigate to the directory of .vsl files
+cd vsl_programs
+
+# Clean, compile the assembly code, and generate the executable
+make clean && make ps5 && make ps5-assemble
+```

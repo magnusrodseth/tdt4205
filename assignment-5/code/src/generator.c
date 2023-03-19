@@ -10,7 +10,7 @@ static const char *REGISTER_PARAMS[6] = {RDI, RSI, RDX, RCX, R8, R9};
 // Takes in a symbol of type SYMBOL_FUNCTION, and returns how many parameters the function takes
 #define FUNC_PARAM_COUNT(func) ((func)->node->children[1]->n_children)
 
-static void generate_stringtable(void);
+static void generate_string_table(void);
 static void generate_global_variables(void);
 static void generate_function(symbol_t *function);
 static void generate_statement(node_t *node);
@@ -18,7 +18,7 @@ static void generate_main(symbol_t *first);
 
 /* Entry point for code generation */
 void generate_program(void) {
-    generate_stringtable();
+    generate_string_table();
     generate_global_variables();
 
     // TODO: (Part of 2.3)
@@ -36,7 +36,7 @@ void generate_program(void) {
 }
 
 /* Prints one .asciz entry for each string in the global string_list */
-static void generate_stringtable(void) {
+static void generate_string_table(void) {
     DIRECTIVE(".section .rodata");
     // These strings are used by printf
     DIRECTIVE("intout: .asciz \"%s\"", "%ld ");
@@ -44,7 +44,11 @@ static void generate_stringtable(void) {
     // This string is used by the entry point-wrapper
     DIRECTIVE("errout: .asciz \"%s\"", "Wrong number of arguments");
 
-    // TODO 2.1: Print all strings in the program here, with labels you can refer to later
+    // Print all strings in the program here, with labels you can refer to later
+    for (int i = 0; i < string_list_len; i++) {
+        char *string = string_list[i];
+        DIRECTIVE("string%d: .asciz %s", i, string);
+    }
 }
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */

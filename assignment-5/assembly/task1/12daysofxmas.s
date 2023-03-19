@@ -1,5 +1,6 @@
 .globl main
 
+/* Read-only data section: Contains strings and other data that will not be changed during runtime. */
 .section .rodata
 intro: .string "On day %ld of Christmas my true love sent to me\n"
 and_s: .string "and "
@@ -21,6 +22,7 @@ lines:
     .quad str01, str02, str03, str04, str05, str06
     .quad str07, str08, str09, str10, str11, str12
 
+/* Text section: Contains the actual code that will be executed. */
 .section .text
 main:
     pushq %rbp
@@ -68,6 +70,36 @@ main:
 
         ...
     */
+
+    movq $1, %rax
+    movq $1, %rdi
+    movq $intro, %rsi
+    call printf
+    
+    movq $1, %rax
+    movq $1, %rdi
+    movq $str01, %rsi
+    call printf
+
+    movq $1, %rax
+    movq $1, %rdi
+    movq $str02, %rsi
+    call printf
+
+    movq $1, %rax
+    movq $1, %rdi
+    movq $str03, %rsi
+    call printf
+
+    movq $1, %rax
+    movq $1, %rdi
+    movq $str04, %rsi
+    call printf
+
+    movq $1, %rax
+    movq $1, %rdi
+    movq $str05, %rsi
+    call printf
 
     leave
     ret
