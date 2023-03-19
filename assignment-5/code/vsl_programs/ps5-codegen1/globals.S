@@ -11,3 +11,25 @@ string2: .asciz "Here, A is"
 .A: .zero 8
 .B: .zero 8
 .dummy: .zero 8
+
+.section .text
+.main:
+
+.section .text
+.otherFunc:
+
+.globl main
+main:
+	pushq %rbp
+	movq %rsp, %rbp
+	subq $1, %rdi
+	cmpq $0, %rdi
+	jne ABORT
+	call .main
+	movq %rax, %rdi
+	call exit
+ABORT:
+	movq $errout, %rdi
+	call puts
+	movq $1, %rdi
+	call exit

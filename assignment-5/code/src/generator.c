@@ -15,16 +15,34 @@ static void generate_global_variables(void);
 static void generate_function(symbol_t *function);
 static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
+static symbol_t *topmost_function();
+
+static symbol_t *topmost_function() {
+    symbol_t *topmost = NULL;
+    for (int i = 0; i < global_symbols->n_symbols; i++) {
+        symbol_t *symbol = global_symbols->symbols[i];
+        if (symbol->type == SYMBOL_FUNCTION) {
+            topmost = symbol;
+            break;
+        }
+    }
+
+    return topmost;
+}
 
 /* Entry point for code generation */
 void generate_program(void) {
     generate_string_table();
     generate_global_variables();
 
-    // TODO: (Part of 2.3)
     // For each function in global_symbols, generate it using generate_function ()
+    for (int i = 0; i < global_symbols->n_symbols; i++) {
+        symbol_t *symbol = global_symbols->symbols[i];
+        if (symbol->type == SYMBOL_FUNCTION) {
+            generate_function(symbol);
+        }
+    }
 
-    // TODO: (Also part of 2.3)
     // In VSL, the topmost function in a program is its entry point.
     // We want to be able to take parameters from the command line,
     // and have them be sent into the entry point function.
@@ -33,6 +51,9 @@ void generate_program(void) {
     // and passed as the (argc, argv)-pair, we need to make a wrapper for our entry function.
     // This wrapper handles string -> int64_t conversion, and is already implemented.
     // call generate_main ( <entry point function symbol> );
+    symbol_t *first = topmost_function();
+    assert(first != NULL);
+    generate_main(first);
 }
 
 /* Prints one .asciz entry for each string in the global string_list */
@@ -85,14 +106,27 @@ static void generate_global_variables(void) {
             DIRECTIVE(".%s: .zero %d", symbol->name, length * VARIABLE_SIZE_IN_BYTES);
         }
     }
+
+    printf("\n");
 }
 
 /* Prints the entry point. preable, statements and epilouge of the given function */
 static void generate_function(symbol_t *function) {
+    DIRECTIVE(".section .text");
     // TODO: 2.3
     // TODO: 2.3.1 Do the prologue, including call frame building and parameter pushing
+
+    // Initialize the call frame and take parameters
+    LABEL(".%s", function->name);
+
     // TODO: 2.4 the function body can be sent to generate_statement()
+    // assert(function->node->n_children == 3);
+    // node_t *body = function->node->children[2];
+    // generate_statement(body)
+
     // TODO: 2.3.2
+
+    printf("\n");
 }
 
 static void generate_function_call(node_t *call) {
@@ -117,7 +151,29 @@ static void generate_return_statement(node_t *statement) {
 
 /* Recursively generate the given statement node, and all sub-statements. */
 static void generate_statement(node_t *node) {
-    // TODO: 2.4
+    node_t *child = node->children[0];
+    switch (node->type) {
+        case EXPRESSION:
+            generate_expression(child);
+            break;
+        case ASSIGNMENT_STATEMENT:
+            generate_assignment_statement(child);
+            break;
+        case PRINT_STATEMENT:
+            generate_print_statement(child);
+            break;
+        case RETURN_STATEMENT:
+            generate_return_statement(child);
+            break;
+        case BLOCK:
+            for (int i = 0; i < node->n_children; i++) {
+                generate_statement(node->children[i]);
+            }
+            break;
+        default:
+            // TODO: Unsure what to do here
+            assert(false);
+    }
 }
 
 // Generates a wrapper, to be able to use a vsl function as our entrypoint
