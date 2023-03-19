@@ -49,6 +49,8 @@ static void generate_string_table(void) {
         char *string = string_list[i];
         DIRECTIVE("string%d: .asciz %s", i, string);
     }
+
+    printf("\n");
 }
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */
@@ -56,6 +58,31 @@ static void generate_global_variables(void) {
     // TODO 2.2: Generate a section where global variables and global arrays can live
     // Give each a label you can find later, and the appropriate size.
     // Remember to mangle the name in some way, to avoid collisions if a variable is called e.g. "main"
+    DIRECTIVE(".section .bss");
+    DIRECTIVE(".align 8");
+
+    for (int i = 0; i < global_symbols->n_symbols; i++) {
+        symbol_t *symbol = global_symbols->symbols[i];
+
+        if (symbol->type == SYMBOL_GLOBAL_VAR) {
+            // Normal global variables take up 8 bytes, so we set aside 8 bytes using `.zero 8`
+            DIRECTIVE(".%s: .zero 8", symbol->name);
+        } else if (symbol->type == SYMBOL_GLOBAL_ARRAY) {
+            // Arrays can take up multiple 8 byte values, so we need to compute their total size.
+            // Array symbols store a pointer to their definition in the `node` field.
+            node_t *array_node = symbol->node;
+            assert(array_node->type == ARRAY_DECLARATION);
+
+            // The array_node’s second child should be a NUMBER_DATA node containing the length of the array.
+            node_t *length_node = array_node->children[1];
+            assert(length_node->type == NUMBER_DATA);
+            int length = length_node->data;
+
+            // Use the `.zero` directive to set aside the correct amount of space.
+            // Multiply the length by 8, to get the array size in bytes.
+            DIRECTIVE(".%s: .zero %d", symbol->name, length * 8);
+        }
+    }
 }
 
 /* Prints the entry point. preable, statements and epilouge of the given function */

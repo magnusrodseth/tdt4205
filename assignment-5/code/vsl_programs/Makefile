@@ -5,6 +5,7 @@ PS2_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps2-parser/*.vsl))
 PS3_EXAMPLES := $(patsubst %.vsl, %.ast, $(wildcard ps3-simplify/*.vsl))
 PS3_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps3-simplify/*.vsl))
 PS4_EXAMPLES := $(patsubst %.vsl, %.symbols, $(wildcard ps4-symbols/*.vsl))
+PS4_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps4-symbols/*.vsl))
 PS5_EXAMPLES := $(patsubst %.vsl, %.S, $(wildcard ps5-codegen1/*.vsl))
 PS5_ASSEMBLED := $(patsubst %.vsl, %.out, $(wildcard ps5-codegen1/*.vsl))
 
