@@ -1,10 +1,10 @@
 .globl main
 
-.section .data
+.section __DATA, __data
 hello:
     .string "Hello World! %ld\n"
 
-.section .text
+.section __TEXT, __text
 main:                       # Function main:
     pushq %rbp              # Push frame pointer to stack
     movq %rsp, %rbp         # Save stack pointer as frame pointer

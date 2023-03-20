@@ -1,7 +1,7 @@
 .globl main
 
 /* Read-only data section: Contains strings and other data that will not be changed during runtime. */
-.section .rodata
+.section __TEXT, __cstring
 intro: .string "On day %ld of Christmas my true love sent to me\n"
 and_s: .string "and "
 
@@ -23,7 +23,7 @@ lines:
     .quad str07, str08, str09, str10, str11, str12
 
 /* Text section: Contains the actual code that will be executed. */
-.section .text
+.section __TEXT, __text
 main:
     pushq %rbp
     movq %rsp, %rbp

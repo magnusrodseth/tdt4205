@@ -1,5 +1,5 @@
 .globl main
-.section .data
+.section __DATA, __data
 
 number_of_guesses: .quad 5
 guesses: .quad 1, 100, 13, 50, 42
@@ -17,7 +17,7 @@ book: .quad line1, line2, line3, line4
 
 debug: .string "Value is %ld\n"
 
-.section .text
+.section __TEXT, __text
 main:
     pushq %rbp
     movq %rsp, %rbp

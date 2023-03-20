@@ -58,7 +58,7 @@ void generate_program(void) {
 
 /* Prints one .asciz entry for each string in the global string_list */
 static void generate_string_table(void) {
-    DIRECTIVE(".section .rodata");
+    DIRECTIVE(".section __TEXT, __cstring");
     // These strings are used by printf
     DIRECTIVE("intout: .asciz \"%s\"", "%ld ");
     DIRECTIVE("strout: .asciz \"%s\"", "%s ");
@@ -79,7 +79,7 @@ static void generate_global_variables(void) {
     // TODO 2.2: Generate a section where global variables and global arrays can live
     // Give each a label you can find later, and the appropriate size.
     // Remember to mangle the name in some way, to avoid collisions if a variable is called e.g. "main"
-    DIRECTIVE(".section .bss");
+    DIRECTIVE(".section __DATA, __bss");
     DIRECTIVE(".align 8");
     const int VARIABLE_SIZE_IN_BYTES = 8;
 
@@ -112,7 +112,7 @@ static void generate_global_variables(void) {
 
 /* Prints the entry point. preable, statements and epilouge of the given function */
 static void generate_function(symbol_t *function) {
-    DIRECTIVE(".section .text");
+    DIRECTIVE(".section __TEXT, __text");
     // TODO: 2.3
     // TODO: 2.3.1 Do the prologue, including call frame building and parameter pushing
 
