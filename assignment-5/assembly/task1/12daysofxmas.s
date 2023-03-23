@@ -1,7 +1,7 @@
 .globl main
 
-/* Read-only data section: Contains strings and other data that will not be changed during runtime. */
-.section __TEXT, __cstring
+# Read-only data section: Contains strings and other data that will not be changed during runtime. 
+.section .rodata
 intro: .string "On day %ld of Christmas my true love sent to me\n"
 and_s: .string "and "
 
@@ -22,8 +22,8 @@ lines:
     .quad str01, str02, str03, str04, str05, str06
     .quad str07, str08, str09, str10, str11, str12
 
-/* Text section: Contains the actual code that will be executed. */
-.section __TEXT, __text
+# Text section: Contains the actual code that will be executed.
+.section .text
 main:
     pushq %rbp
     movq %rsp, %rbp
@@ -32,7 +32,7 @@ main:
         TODO: Task 1 - Put your code here.
 
         Your task: 
-        Implement a GNU Assembly program that prints a alightly modified version of the "Twelve Days of Christmas" song.
+        Implement a GNU Assembly program that prints a slightly modified version of the "Twelve Days of Christmas" song.
         Instead of "first day, second day" or "1st day, 2nd day" etc, your program may output "On day N of Christmas my true love gave to me".
         This song is cumulative - each day will include the gifts of every previous day.
         (i.e. day 1 will include only a partridge, while day 2 will include two turtle doves AND a partridge).
@@ -71,35 +71,12 @@ main:
         ...
     */
 
-    movq $1, %rax
-    movq $1, %rdi
-    movq $intro, %rsi
-    call printf
-    
-    movq $1, %rax
-    movq $1, %rdi
-    movq $str01, %rsi
+    # Print intro
+    movq $1, %rsi
+    movq $intro, %rdi
     call printf
 
-    movq $1, %rax
-    movq $1, %rdi
-    movq $str02, %rsi
-    call printf
-
-    movq $1, %rax
-    movq $1, %rdi
-    movq $str03, %rsi
-    call printf
-
-    movq $1, %rax
-    movq $1, %rdi
-    movq $str04, %rsi
-    call printf
-
-    movq $1, %rax
-    movq $1, %rdi
-    movq $str05, %rsi
-    call printf
+   
 
     leave
     ret
