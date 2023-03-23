@@ -1,6 +1,6 @@
 .globl main
 
-.section __TEXT, __cstring
+.section .rodata
 hello:
     .string "Hello World!\n"
 current_value_string:
@@ -8,7 +8,7 @@ current_value_string:
 counting_string:
     .string "Value is %ld\n"
 
-.section __TEXT, __text
+.section .text
 main:                       # Function main:
     push %rbp              # Push frame pointer to stack
     movq %rsp, %rbp         # Save stack pointer as frame pointer
