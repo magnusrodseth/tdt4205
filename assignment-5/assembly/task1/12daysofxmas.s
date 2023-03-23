@@ -1,3 +1,43 @@
+/*
+Implement a GNU Assembly program that prints a alightly modified version of the "Twelve Days of Christmas" song.
+Instead of "first day, second day" or "1st day, 2nd day" etc, your program may output "On day N of Christmas my true love gave to me".
+This song is cumulative - each day will include the gifts of every previous day.
+(i.e. day 1 will include only a partridge, while day 2 will include two turtle doves AND a partridge).
+Use printf to output the lyrics of the song to terminal.
+A suggestion for the first lines of the output is added below.
+
+
+HINTS:
+- The registers %rdi and %rsi are used for the first two arguments in a function call (like printf).
+- Some registers are overwritten by functions (including printf!) This includes %rax, %rbx, %rcx, %rdx, %rdi, %rsi, %rbp, %rsp, and %r8-r15.
+- The order of comparisons are (for some reason) reversed! This means that cmp %r8, %r9 will compare r9 vs r8.
+- Create a debug helper string that you can call with printf for slightly easier debugging.
+- Consult the examples in (../examples/) for inspiration. Make them with `make`.
+- Use a cheat sheet like https://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html or https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
+- Compile this with `make` once finished.
+
+
+BONUS POINTS (Can only be exchanged for bragging rights)
+- Use putchar to easily create new lines so that the finished song doesn't become a giant wall of text.
+- Make the song include "and" before the last line - i.e., "AND 1 partridge in a pear tree" - in every verse except the first.
+
+
+SUGGESTED OUTPUT:
+On day 1 of Christmas my true love sent to me
+1 partridge in a pear tree
+
+On day 2 of Christmas my true love sent to me
+2 turtle doves
+and 1 partridge in a pear tree
+
+On day 3 of Christmas my true love sent to me
+3 french hens
+2 turtle doves
+and 1 partridge in a pear tree
+
+...
+*/
+
 .globl main
 
 # Read-only data section: Contains strings and other data that will not be changed during runtime. 
@@ -22,61 +62,41 @@ lines:
     .quad str01, str02, str03, str04, str05, str06
     .quad str07, str08, str09, str10, str11, str12
 
+debug: .string "Value is %ld\n"
+
 # Text section: Contains the actual code that will be executed.
 .section .text
 main:
     pushq %rbp
     movq %rsp, %rbp
 
-    /*
-        TODO: Task 1 - Put your code here.
+    call print_intro 
 
-        Your task: 
-        Implement a GNU Assembly program that prints a slightly modified version of the "Twelve Days of Christmas" song.
-        Instead of "first day, second day" or "1st day, 2nd day" etc, your program may output "On day N of Christmas my true love gave to me".
-        This song is cumulative - each day will include the gifts of every previous day.
-        (i.e. day 1 will include only a partridge, while day 2 will include two turtle doves AND a partridge).
-        Use printf to output the lyrics of the song to terminal.
-        A suggestion for the first lines of the output is added below.
+    .end:
+        leave
+        ret
 
+# Prints the intro string from day 1 to day 12
+print_intro:
+    push %rbp
+    movq %rsp, %rbp
 
-        HINTS:
-        - The registers %rdi and %rsi are used for the first two arguments in a function call (like printf).
-        - Some registers are overwritten by functions (including printf!) This includes %rax, %rbx, %rcx, %rdx, %rdi, %rsi, %rbp, %rsp, and %r8-r15.
-        - The order of comparisons are (for some reason) reversed! This means that cmp %r8, %r9 will compare r9 vs r8.
-        - Create a debug helper string that you can call with printf for slightly easier debugging.
-        - Consult the examples in (../examples/) for inspiration. Make them with `make`.
-        - Use a cheat sheet like https://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html or https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
-        - Compile this with `make` once finished.
+    movq $0, %r12 # r12 = i
+    movq $12, %r13 # r13 = loop_end 
 
+    # Loop until increment counter is larger than loop_end value
+    loop_intro:
+        inc %r12 # i++
+        cmp %r12, %r13 # if (i > loop_end)
+        jl done # if (i > loop_end), jump to done
 
-        BONUS POINTS (Can only be exchanged for bragging rights)
-        - Use putchar to easily create new lines so that the finished song doesn't become a giant wall of text.
-        - Make the song include "and" before the last line - i.e., "AND 1 partridge in a pear tree" - in every verse except the first.
-
-
-        SUGGESTED OUTPUT:
-        On day 1 of Christmas my true love sent to me
-        1 partridge in a pear tree
-
-        On day 2 of Christmas my true love sent to me
-        2 turtle doves
-        and 1 partridge in a pear tree
-
-        On day 3 of Christmas my true love sent to me
-        3 french hens
-        2 turtle doves
-        and 1 partridge in a pear tree
-
-        ...
-    */
-
-    # Print intro
-    movq $1, %rsi
+    # Print the intro string
+    movq %r12, %rsi
     movq $intro, %rdi
     call printf
 
-   
+    jmp loop_intro # If we're not done, jump to loop_intro 
 
-    leave
-    ret
+    done:
+        leave
+        ret
