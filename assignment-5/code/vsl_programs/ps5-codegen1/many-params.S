@@ -11,7 +11,6 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 .section .text
 .main:
 
-.section .text
 .otherFunc:
 
 .globl main

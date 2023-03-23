@@ -12,6 +12,7 @@ static const char *REGISTER_PARAMS[6] = {RDI, RSI, RDX, RCX, R8, R9};
 
 static void generate_string_table(void);
 static void generate_global_variables(void);
+static void generate_global_functions(void);
 static void generate_function(symbol_t *function);
 static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
@@ -30,18 +31,22 @@ static symbol_t *topmost_function() {
     return topmost;
 }
 
-/* Entry point for code generation */
-void generate_program(void) {
-    generate_string_table();
-    generate_global_variables();
-
-    // For each function in global_symbols, generate it using generate_function ()
+static void generate_global_functions(void) {
+    DIRECTIVE(".section .text");
+    // For each function in global_symbols, generate it using generate_function()
     for (int i = 0; i < global_symbols->n_symbols; i++) {
         symbol_t *symbol = global_symbols->symbols[i];
         if (symbol->type == SYMBOL_FUNCTION) {
             generate_function(symbol);
         }
     }
+}
+
+/* Entry point for code generation */
+void generate_program(void) {
+    generate_string_table();
+    generate_global_variables();
+    generate_global_functions();
 
     // In VSL, the topmost function in a program is its entry point.
     // We want to be able to take parameters from the command line,
@@ -96,7 +101,7 @@ static void generate_global_variables(void) {
             assert(array_node->type == ARRAY_DECLARATION && array_node->n_children == 2);
 
             // The array_node’s second child should be a NUMBER_DATA node containing the length of the array.
-            // TODO: This is not the correct length
+            // TODO: This is not the correct length. I don't understand why length_node->data is empty.
             node_t *length_node = array_node->children[1];
             assert(length_node->type == NUMBER_DATA);
             int length = (int)atoi(length_node->data);
@@ -112,7 +117,6 @@ static void generate_global_variables(void) {
 
 /* Prints the entry point. preable, statements and epilouge of the given function */
 static void generate_function(symbol_t *function) {
-    DIRECTIVE(".section .text");
     // TODO: 2.3
     // TODO: 2.3.1 Do the prologue, including call frame building and parameter pushing
 

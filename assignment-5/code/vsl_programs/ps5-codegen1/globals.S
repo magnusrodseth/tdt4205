@@ -15,7 +15,6 @@ string2: .asciz "Here, A is"
 .section .text
 .main:
 
-.section .text
 .otherFunc:
 
 .globl main

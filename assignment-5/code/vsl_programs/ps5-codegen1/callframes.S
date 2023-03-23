@@ -12,10 +12,8 @@ string2: .asciz "excusive"
 .section .text
 .main:
 
-.section .text
 .sumRange:
 
-.section .text
 .sumUntil:
 
 .globl main
