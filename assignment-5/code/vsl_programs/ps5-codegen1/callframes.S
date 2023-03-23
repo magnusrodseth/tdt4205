@@ -11,10 +11,38 @@ string2: .asciz "excusive"
 
 .section .text
 .main:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
+	pushq $0
 
 .sumRange:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
+	pushq $0
+	pushq $0
 
 .sumUntil:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
+	pushq $0
 
 .globl main
 main:

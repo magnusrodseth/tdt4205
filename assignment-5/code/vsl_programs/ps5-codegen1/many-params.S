@@ -10,8 +10,24 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 
 .section .text
 .main:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
 
 .otherFunc:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
 
 .globl main
 main:

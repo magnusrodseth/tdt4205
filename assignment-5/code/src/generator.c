@@ -119,9 +119,33 @@ static void generate_global_variables(void) {
 static void generate_function(symbol_t *function) {
     // TODO: 2.3
     // TODO: 2.3.1 Do the prologue, including call frame building and parameter pushing
-
     // Initialize the call frame and take parameters
     LABEL(".%s", function->name);
+
+    // Save old base pointer, and set new base pointer
+    PUSHQ(RBP);
+    MOVQ(RSP, RBP);
+
+    // Push registers with parameters onto the stack
+    PUSHQ(RDI);
+    PUSHQ(RSI);
+    PUSHQ(RDX);
+    PUSHQ(RCX);
+    PUSHQ(R8);
+    PUSHQ(R9);
+
+    // If the function takes more than 6 parameters, the ABI defines that the caller
+    // should push the extra parameters to the stack, from right to left, before the function is called,
+    // which means they end up above the return address on the stack.
+    // TODO: Handle this
+
+    // Push local variables onto the stack
+    for (int i = 0; i < function->function_symtable->n_symbols; i++) {
+        symbol_t *symbol = function->function_symtable->symbols[i];
+        if (symbol->type == SYMBOL_LOCAL_VAR) {
+            // TODO: Handle local variables
+        }
+    }
 
     // TODO: 2.4 the function body can be sent to generate_statement()
     // assert(function->node->n_children == 3);

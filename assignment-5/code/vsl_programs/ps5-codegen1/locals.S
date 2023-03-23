@@ -11,6 +11,18 @@ string2: .asciz "Out here, a b c are"
 
 .section .text
 .main:
+	pushq %rbp
+	movq %rsp, %rbp
+	pushq %rdi
+	pushq %rsi
+	pushq %rdx
+	pushq %rcx
+	pushq %r8
+	pushq %r9
+	pushq $0
+	pushq $0
+	pushq $0
+	pushq $0
 
 .globl main
 main:
