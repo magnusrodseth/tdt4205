@@ -70,33 +70,64 @@ main:
     pushq %rbp
     movq %rsp, %rbp
 
-    call print_intro 
+    call print 
 
     .end:
         leave
         ret
 
 # Prints the intro string from day 1 to day 12
-print_intro:
+print:
     push %rbp
     movq %rsp, %rbp
 
     movq $0, %r12 # r12 = i
-    movq $12, %r13 # r13 = loop_end 
+    movq $12, %r13 # r13 = loop_end_i 
 
-    # Loop until increment counter is larger than loop_end value
-    loop_intro:
+    # Loop until increment counter is larger than loop_end_i value
+    loop_i:
         inc %r12 # i++
-        cmp %r12, %r13 # if (i > loop_end)
-        jl done # if (i > loop_end), jump to done
+        cmp %r12, %r13 # Compare i and loop_end_i
+        jl done_i # if (i > loop_end_i), jump to done_i
 
-    # Print the intro string
-    movq %r12, %rsi
-    movq $intro, %rdi
-    call printf
+        # Print the intro string
+        movq %r12, %rsi
+        movq $intro, %rdi
+        call printf
 
-    jmp loop_intro # If we're not done, jump to loop_intro 
+        # Print the gifts
+        call gifts
 
-    done:
+        jmp loop_i # If we're not done, jump to loop_i 
+
+    done_i:
+        leave
+        ret
+
+gifts:
+    pushq %rbp
+    movq %rsp, %rbp
+
+    # Iterate from i to 1
+    movq %r12, %r8 # r8 = j = i
+    movq $1, %r9 # r9 = loop_end_j
+
+    gifts_loop:
+        cmp %r8, %r9
+        jge gifts_loop_end              
+
+        movq $lines, %rdi # Reading address of book pointer
+        movq (%rdi, %r8, 8), %rdi # Read nth element; e = lines[j]
+        movq %r8, %rsi # No effect, just for pushing even number of arguments (won't matter here)
+        call printf # Printing line j; Note printf takes string address so no need for dereferencing
+
+        dec %r8 # j--
+        jmp gifts_loop 
+
+    gifts_loop_end:
+        # Print newline
+        movq $10, %rdi
+        call putchar
+
         leave
         ret
