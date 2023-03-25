@@ -1,46 +1,5 @@
-/*
-Implement a GNU Assembly program that prints a alightly modified version of the "Twelve Days of Christmas" song.
-Instead of "first day, second day" or "1st day, 2nd day" etc, your program may output "On day N of Christmas my true love gave to me".
-This song is cumulative - each day will include the gifts of every previous day.
-(i.e. day 1 will include only a partridge, while day 2 will include two turtle doves AND a partridge).
-Use printf to output the lyrics of the song to terminal.
-A suggestion for the first lines of the output is added below.
-
-
-HINTS:
-- The registers %rdi and %rsi are used for the first two arguments in a function call (like printf).
-- Some registers are overwritten by functions (including printf!) This includes %rax, %rbx, %rcx, %rdx, %rdi, %rsi, %rbp, %rsp, and %r8-r15.
-- The order of comparisons are (for some reason) reversed! This means that cmp %r8, %r9 will compare r9 vs r8.
-- Create a debug helper string that you can call with printf for slightly easier debugging.
-- Consult the examples in (../examples/) for inspiration. Make them with `make`.
-- Use a cheat sheet like https://flint.cs.yale.edu/cs421/papers/x86-asm/asm.html or https://cs.brown.edu/courses/cs033/docs/guides/x64_cheatsheet.pdf
-- Compile this with `make` once finished.
-
-
-BONUS POINTS (Can only be exchanged for bragging rights)
-- Use putchar to easily create new lines so that the finished song doesn't become a giant wall of text.
-- Make the song include "and" before the last line - i.e., "AND 1 partridge in a pear tree" - in every verse except the first.
-
-
-SUGGESTED OUTPUT:
-On day 1 of Christmas my true love sent to me
-1 partridge in a pear tree
-
-On day 2 of Christmas my true love sent to me
-2 turtle doves
-and 1 partridge in a pear tree
-
-On day 3 of Christmas my true love sent to me
-3 french hens
-2 turtle doves
-and 1 partridge in a pear tree
-
-...
-*/
-
 .globl main
 
-# Read-only data section: Contains strings and other data that will not be changed during runtime. 
 .section .rodata
 intro: .string "On day %ld of Christmas my true love sent to me\n"
 and_s: .string "and "
@@ -62,72 +21,63 @@ lines:
     .quad str01, str02, str03, str04, str05, str06
     .quad str07, str08, str09, str10, str11, str12
 
-debug: .string "Value is %ld\n"
-
-# Text section: Contains the actual code that will be executed.
 .section .text
 main:
     pushq %rbp
     movq %rsp, %rbp
 
-    call print 
+# Outer for loop
+    movq $1, %r13
+for_begin:
+    cmpq $13, %r13
+    jge for_end
 
-    .end:
-        leave
-        ret
+# Print intro
+part_intro:
+    movq %r13, %rsi
+    movq $intro, %rdi
+    call printf
 
-# Prints the intro string from day 1 to day 12
-print:
-    push %rbp
-    movq %rsp, %rbp
+# Inner for loop
+    movq %r13, %r14
+inner_for_begin:
+    cmpq $1, %r14
+    jle inner_for_end
 
-    movq $0, %r12 # r12 = i
-    movq $12, %r13 # r13 = loop_end_i 
+    # Calculate index into lines: (r14 - 1) * 64 + lines
+    movq %r14, %rdi
+    subq $1, %rdi
+    salq $3, %rdi
+    addq $lines, %rdi
+    movq (%rdi), %rdi
+    movq %r14, %rsi
+    call printf
+    
+# Inner for end
+    subq $1, %r14
+    jmp inner_for_begin
+inner_for_end:
 
-    # Loop until increment counter is larger than loop_end_i value
-    loop_i:
-        inc %r12 # i++
-        cmp %r12, %r13 # Compare i and loop_end_i
-        jl done_i # if (i > loop_end_i), jump to done_i
+# Print the last line
+    cmpq $1, %r13
+    je part_1
 
-        # Print the intro string
-        movq %r12, %rsi
-        movq $intro, %rdi
-        call printf
+    movq $and_s, %rdi
+    call printf
 
-        # Print the gifts
-        call gifts
+part_1:
+    movq $str01, %rdi
+    movq $1, %rsi
+    call printf
 
-        jmp loop_i # If we're not done, jump to loop_i 
+    # print newline
+    movq $10, %rdi
+    call putchar
 
-    done_i:
-        leave
-        ret
+# Outer for end
+    addq $1, %r13
+    jmp for_begin
+for_end:
 
-gifts:
-    pushq %rbp
-    movq %rsp, %rbp
-
-    # Iterate from i to 1
-    movq %r12, %r8 # r8 = j = i
-    movq $1, %r9 # r9 = loop_end_j
-
-    gifts_loop:
-        cmp %r8, %r9
-        jge gifts_loop_end              
-
-        movq $lines, %rdi # Reading address of book pointer
-        movq (%rdi, %r8, 8), %rdi # Read nth element; e = lines[j]
-        movq %r8, %rsi # No effect, just for pushing even number of arguments (won't matter here)
-        call printf # Printing line j; Note printf takes string address so no need for dereferencing
-
-        dec %r8 # j--
-        jmp gifts_loop 
-
-    gifts_loop_end:
-        # Print newline
-        movq $10, %rdi
-        call putchar
-
-        leave
-        ret
+    leave
+    ret
