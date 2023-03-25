@@ -1,5 +1,6 @@
 .globl main
 
+# Read-only data
 .section .rodata
 intro: .string "On day %ld of Christmas my true love sent to me\n"
 and_s: .string "and "
@@ -21,63 +22,67 @@ lines:
     .quad str01, str02, str03, str04, str05, str06
     .quad str07, str08, str09, str10, str11, str12
 
+# Text section
 .section .text
 main:
     pushq %rbp
     movq %rsp, %rbp
 
-# Outer for loop
-    movq $1, %r13
-for_begin:
-    cmpq $13, %r13
-    jge for_end
+    movq $1, %r13 # r13 = i
 
-# Print intro
-part_intro:
-    movq %r13, %rsi
-    movq $intro, %rdi
+# Iterate over days, from day 1 to day 12
+for_i:
+    cmpq $13, %r13 # i <= 12
+    jge end_for_i # if i > 12, end
+
+# Print the intro
+print_intro:
+    movq %r13, %rsi 
+    movq $intro, %rdi 
     call printf
 
-# Inner for loop
-    movq %r13, %r14
-inner_for_begin:
-    cmpq $1, %r14
-    jle inner_for_end
+    movq %r13, %r14 # r14 = j
+
+# Iterate over the lines, from the current day to day 1
+for_j:
+    cmpq $1, %r14 # j >= 1
+    jle end_for_j # if j < 1, end
 
     # Calculate index into lines: (r14 - 1) * 64 + lines
     movq %r14, %rdi
-    subq $1, %rdi
-    salq $3, %rdi
-    addq $lines, %rdi
+    subq $1, %rdi # rdi = r14 - 1
+    salq $3, %rdi # rdi = (r14 - 1) * 8
+    addq $lines, %rdi 
     movq (%rdi), %rdi
-    movq %r14, %rsi
+    movq %r14, %rsi # Move j into rsi
     call printf
+
+    subq $1, %r14 # j--
+    jmp for_j
     
-# Inner for end
-    subq $1, %r14
-    jmp inner_for_begin
-inner_for_end:
+# End of for_j
+end_for_j:
+    # Print the last line
+    cmpq $1, %r13 # i == 1
+    je print_first_line # if i == 1, print the first line
 
-# Print the last line
-    cmpq $1, %r13
-    je part_1
-
-    movq $and_s, %rdi
+    movq $and_s, %rdi 
     call printf
 
-part_1:
-    movq $str01, %rdi
-    movq $1, %rsi
+print_first_line:
+    # Print the first line
+    movq $str01, %rdi 
+    movq $1, %rsi 
     call printf
 
-    # print newline
+    # Print newline
     movq $10, %rdi
     call putchar
 
-# Outer for end
-    addq $1, %r13
-    jmp for_begin
-for_end:
+    addq $1, %r13 # i++
+    jmp for_i 
 
+# End of for_i
+end_for_i:
     leave
     ret

@@ -2,14 +2,19 @@
 
 ## 1 - Assembly programming
 
+Note that I cooperated with Johan Solbakken on this task.
+
 The deliverable for the assembly programming can be found in the [`assembly`](./assembly) directory. Please see the attached implementation details. Run the application using:
 
 ```sh
 # Navigate to the `assembly` directory
-cd assembly
+cd assembly/task1
+
+# Compile the application
+make
 
 # Run the application
-make
+./12daysofxmas
 ```
 
 ## 2 - Code Generation Part I
