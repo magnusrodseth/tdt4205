@@ -23,6 +23,8 @@ string2: .asciz "Out here, a b c are"
 	pushq $0
 	pushq $0
 	pushq $0
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

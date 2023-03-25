@@ -3,8 +3,7 @@ intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
 string0: .asciz "Printing the sum of all integers from"
-string1: .asciz "until"
-string2: .asciz "excusive"
+string1: .asciz "up to, but not including"
 
 .section .bss
 .align 8
@@ -20,6 +19,8 @@ string2: .asciz "excusive"
 	pushq %r8
 	pushq %r9
 	pushq $0
+	movq %rbp, %rsp
+	popq %rbp
 
 .sumRange:
 	pushq %rbp
@@ -32,6 +33,8 @@ string2: .asciz "excusive"
 	pushq %r9
 	pushq $0
 	pushq $0
+	movq %rbp, %rsp
+	popq %rbp
 
 .sumUntil:
 	pushq %rbp
@@ -43,6 +46,8 @@ string2: .asciz "excusive"
 	pushq %r8
 	pushq %r9
 	pushq $0
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

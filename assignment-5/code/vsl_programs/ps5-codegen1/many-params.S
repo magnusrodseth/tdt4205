@@ -18,6 +18,8 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .otherFunc:
 	pushq %rbp
@@ -28,6 +30,8 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

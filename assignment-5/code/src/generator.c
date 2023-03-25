@@ -81,9 +81,6 @@ static void generate_string_table(void) {
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */
 static void generate_global_variables(void) {
-    // TODO 2.2: Generate a section where global variables and global arrays can live
-    // Give each a label you can find later, and the appropriate size.
-    // Remember to mangle the name in some way, to avoid collisions if a variable is called e.g. "main"
     DIRECTIVE(".section .bss");
     DIRECTIVE(".align 8");
     const int VARIABLE_SIZE_IN_BYTES = 8;
@@ -101,14 +98,13 @@ static void generate_global_variables(void) {
             assert(array_node->type == ARRAY_DECLARATION && array_node->n_children == 2);
 
             // The array_node’s second child should be a NUMBER_DATA node containing the length of the array.
-            // TODO: This is not the correct length. I don't understand why length_node->data is empty.
             node_t *length_node = array_node->children[1];
             assert(length_node->type == NUMBER_DATA);
-            int length = (int)atoi(length_node->data);
+            int64_t length = *(int64_t *)length_node->data;
 
             // Use the `.zero` directive to set aside the correct amount of space.
             // Multiply the length by 8, to get the array size in bytes.
-            DIRECTIVE(".%s: .zero %d", symbol->name, length * VARIABLE_SIZE_IN_BYTES);
+            DIRECTIVE(".%s: .zero %ld", symbol->name, length * VARIABLE_SIZE_IN_BYTES);
         }
     }
 
@@ -127,23 +123,21 @@ static void generate_function(symbol_t *function) {
     MOVQ(RSP, RBP);
 
     // Push registers with parameters onto the stack
-    PUSHQ(RDI);
-    PUSHQ(RSI);
-    PUSHQ(RDX);
-    PUSHQ(RCX);
-    PUSHQ(R8);
-    PUSHQ(R9);
+    for (int i = 0; i < NUM_REGISTER_PARAMS; i++) {
+        PUSHQ(REGISTER_PARAMS[i]);
+    }
 
     // If the function takes more than 6 parameters, the ABI defines that the caller
     // should push the extra parameters to the stack, from right to left, before the function is called,
     // which means they end up above the return address on the stack.
-    // TODO: Handle this
+    // TODO: Handle this case
 
     // Push local variables onto the stack
     for (int i = 0; i < function->function_symtable->n_symbols; i++) {
         symbol_t *symbol = function->function_symtable->symbols[i];
         if (symbol->type == SYMBOL_LOCAL_VAR) {
-            // TODO: Handle local variables
+            // TODO: Is this really correct for local variables?
+            PUSHQ("$0");
         }
     }
 
@@ -153,6 +147,10 @@ static void generate_function(symbol_t *function) {
     // generate_statement(body)
 
     // TODO: 2.3.2
+    // Reset the %rsp to %rbp
+    MOVQ(RBP, RSP);
+    // Pop the caller’s %rbp value that we saved to the stack previously
+    POPQ(RBP);
 
     printf("\n");
 }

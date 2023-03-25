@@ -6,7 +6,7 @@ string0: .asciz "The values of the array are:"
 
 .section .bss
 .align 8
-.array: .zero 0
+.array: .zero 80
 
 .section .text
 .main:
@@ -18,6 +18,8 @@ string0: .asciz "The values of the array are:"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

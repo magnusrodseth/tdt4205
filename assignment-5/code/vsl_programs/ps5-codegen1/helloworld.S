@@ -17,6 +17,8 @@ string0: .asciz "Hello, World!"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

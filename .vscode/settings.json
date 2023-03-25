@@ -4,5 +4,6 @@
     "symbol_table.h": "c",
     "tree.h": "c",
     "symbols.h": "c"
-  }
+  },
+  "C_Cpp.errorSquiggles": "Enabled"
 }

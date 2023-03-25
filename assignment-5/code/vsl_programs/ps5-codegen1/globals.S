@@ -22,6 +22,8 @@ string2: .asciz "Here, A is"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .otherFunc:
 	pushq %rbp
@@ -32,6 +34,8 @@ string2: .asciz "Here, A is"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:

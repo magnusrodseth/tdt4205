@@ -21,6 +21,8 @@ string4: .asciz "(num-1)*(num+1)*(num+3)"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	movq %rbp, %rsp
+	popq %rbp
 
 .globl main
 main:
