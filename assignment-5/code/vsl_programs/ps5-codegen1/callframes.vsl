@@ -1,7 +1,7 @@
 
-func main(first,last) begin
+func main(first, last) begin
     var result
-    print "Printing the sum of all integers from", first, "until", last, "excusive"
+    print "Printing the sum of all integers from", first, "up to, but not including", last
     result := sumRange(first, last)
     print result
 end
@@ -11,7 +11,7 @@ end
 func sumRange(first, last) begin
     var sumEnd, sumPreFirst
     sumEnd := sumUntil(last)
-    sumPreFirst := sumUntil(first-1)
+    sumPreFirst := sumUntil(first)
     return sumEnd - sumPreFirst
 end
 

@@ -1,7 +1,7 @@
 // Expected output:
 // On startup, A and B are 0 0
-// Here, A is 2
-// Now, B is 5
+// Here, A is 5
+// Now, B is 2
 
 var A, B
 var dummy
