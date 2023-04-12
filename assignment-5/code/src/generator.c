@@ -113,8 +113,6 @@ static void generate_global_variables(void) {
 
 /* Prints the entry point. preable, statements and epilouge of the given function */
 static void generate_function(symbol_t *function) {
-    // TODO: 2.3
-    // TODO: 2.3.1 Do the prologue, including call frame building and parameter pushing
     // Initialize the call frame and take parameters
     LABEL(".%s", function->name);
 
@@ -136,17 +134,15 @@ static void generate_function(symbol_t *function) {
     for (int i = 0; i < function->function_symtable->n_symbols; i++) {
         symbol_t *symbol = function->function_symtable->symbols[i];
         if (symbol->type == SYMBOL_LOCAL_VAR) {
-            // TODO: Is this really correct for local variables?
             PUSHQ("$0");
         }
     }
 
-    // TODO: 2.4 the function body can be sent to generate_statement()
-    // assert(function->node->n_children == 3);
-    // node_t *body = function->node->children[2];
-    // generate_statement(body)
+    // The function body can be sent to generate_statement()
+    assert(function->node->n_children == 3);
+    node_t *body = function->node->children[2];
+    generate_statement(body);
 
-    // TODO: 2.3.2
     // Reset the %rsp to %rbp
     MOVQ(RBP, RSP);
     // Pop the caller’s %rbp value that we saved to the stack previously
@@ -191,14 +187,11 @@ static void generate_statement(node_t *node) {
         case RETURN_STATEMENT:
             generate_return_statement(child);
             break;
-        case BLOCK:
+        default:
             for (int i = 0; i < node->n_children; i++) {
                 generate_statement(node->children[i]);
             }
             break;
-        default:
-            // TODO: Unsure what to do here
-            assert(false);
     }
 }
 
