@@ -16,6 +16,7 @@ static void generate_function(symbol_t *function);
 static void generate_expression(node_t *expression);
 static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
+static void generate_block_statement(node_t *node);
 static symbol_t *get_topmost_function();
 
 /* Global variable used to make the functon currently being generated acessiable from anywhere */
@@ -76,11 +77,12 @@ static void generate_global_variables(void) {
         if (symbol->type == SYMBOL_GLOBAL_VAR) {
             DIRECTIVE(".%s: \t.zero 8", symbol->name);
         } else if (symbol->type == SYMBOL_GLOBAL_ARRAY) {
-            if (symbol->node->children[1]->type != NUMBER_DATA) {
+            node_t *child = symbol->node->children[1];
+            if (child->type != NUMBER_DATA) {
                 fprintf(stderr, "error: length of array '%s' is not compile time known", symbol->name);
                 exit(EXIT_FAILURE);
             }
-            int64_t length = *(int64_t *)symbol->node->children[1]->data;
+            int64_t length = *(int64_t *)child->data;
             DIRECTIVE(".%s: \t.zero %ld", symbol->name, length * 8);
         }
     }
@@ -97,18 +99,24 @@ static void generate_function(symbol_t *function) {
     MOVQ(RSP, RBP);
 
     // Up to 6 prameters have been passed in registers. Place them on the stack instead
-    for (size_t i = 0; i < FUNC_PARAM_COUNT(function) && i < NUM_REGISTER_PARAMS; i++)
+    for (size_t i = 0; i < FUNC_PARAM_COUNT(function) && i < NUM_REGISTER_PARAMS; i++) {
         PUSHQ(REGISTER_PARAMS[i]);
+    }
 
     // Now, for each local variable, push 8-byte 0 values to the stack
-    for (size_t i = 0; i < function->function_symtable->n_symbols; i++)
-        if (function->function_symtable->symbols[i]->type == SYMBOL_LOCAL_VAR)
+    for (size_t i = 0; i < function->function_symtable->n_symbols; i++) {
+        symbol_t *symbol = function->function_symtable->symbols[i];
+        if (symbol->type == SYMBOL_LOCAL_VAR) {
             PUSHQ("$0");
+        }
+    }
 
-    generate_statement(function->node->children[2]);
+    node_t *function_body = function->node->children[2];
+    generate_statement(function_body);
 
     // In case the function didn't return, return 0 here
     MOVQ("$0", RAX);
+
     // leaveq is written out manually, to increase clarity of what happens
     MOVQ(RBP, RSP);
     POPQ(RBP);
@@ -140,32 +148,37 @@ static void generate_function_call(node_t *call) {
     }
 
     // Up to 6 parameters should be passed through registers instead. Pop them off the stack
-    for (size_t i = 0; i < parameter_count && i < NUM_REGISTER_PARAMS; i++)
+    for (size_t i = 0; i < parameter_count && i < NUM_REGISTER_PARAMS; i++) {
         POPQ(REGISTER_PARAMS[i]);
+    }
 
     EMIT("call .%s", symbol->name);
 
     // Now pop away any stack passed parameters still left on the stack, by moving %rsp upwards
-    if (parameter_count > NUM_REGISTER_PARAMS)
+    if (parameter_count > NUM_REGISTER_PARAMS) {
         EMIT("addq $%d, %s", (parameter_count - NUM_REGISTER_PARAMS) * 8, RSP);
+    }
 }
 
 /* Returns a string for accessing the quadword referenced by node */
 static const char *generate_variable_access(node_t *node) {
-    static char result[100];
-
     assert(node->type == IDENTIFIER_DATA);
+
+    static char result[100];
 
     symbol_t *symbol = node->symbol;
     switch (symbol->type) {
-        case SYMBOL_GLOBAL_VAR:
+        case SYMBOL_GLOBAL_VAR: {
             snprintf(result, sizeof(result), ".%s(%s)", symbol->name, RIP);
             return result;
+        }
         case SYMBOL_LOCAL_VAR: {
             // If we have more than 6 parameters, subtract away the hole in the sequence numbers
             int call_frame_offset = symbol->sequence_number;
-            if (FUNC_PARAM_COUNT(current_function) > NUM_REGISTER_PARAMS)
+            if (FUNC_PARAM_COUNT(current_function) > NUM_REGISTER_PARAMS) {
                 call_frame_offset -= FUNC_PARAM_COUNT(current_function) - NUM_REGISTER_PARAMS;
+            }
+
             // The stack grows down, in multiples of 8, and sequence number 0 corresponds to -8
             call_frame_offset = (-call_frame_offset - 1) * 8;
 
@@ -175,28 +188,32 @@ static const char *generate_variable_access(node_t *node) {
         case SYMBOL_PARAMETER: {
             int call_frame_offset;
             // Handle the first 6 parameters differently
-            if (symbol->sequence_number < NUM_REGISTER_PARAMS)
+            if (symbol->sequence_number < NUM_REGISTER_PARAMS) {
                 // Move along down the stack, with parameter 0 at position -8(%rbp)
                 call_frame_offset = (-symbol->sequence_number - 1) * 8;
-            else
+            } else {
                 // Parameter 6 is at 16(%rbp), with further parameters moving up from there
                 call_frame_offset = 16 + (symbol->sequence_number - NUM_REGISTER_PARAMS) * 8;
+            }
 
             snprintf(result, sizeof(result), "%d(%s)", call_frame_offset, RBP);
             return result;
         }
-        case SYMBOL_FUNCTION:
+        case SYMBOL_FUNCTION: {
             fprintf(stderr, "error: symbol '%s' is a function, not a variable\n", symbol->name);
             exit(EXIT_FAILURE);
-        case SYMBOL_GLOBAL_ARRAY:
+        }
+        case SYMBOL_GLOBAL_ARRAY: {
             fprintf(stderr, "error: symbol '%s' is an array, not a variable\n", symbol->name);
             exit(EXIT_FAILURE);
+        }
         default:
             assert(false && "Unknown variable symbol type");
     }
 }
 
-/* Returns a string for accessing the quadword referenced by the ARRAY_INDEXING node.
+/**
+ * Returns a string for accessing the quadword referenced by the ARRAY_INDEXING node.
  * Code for evaluating the index will be emitted, which can potentially mess with all registers.
  * The resulting memory access string will not make use of the %rax register.
  */
@@ -210,7 +227,8 @@ static const char *generate_array_access(node_t *node) {
     }
 
     // Calculate the index of the array into %rax
-    generate_expression(node->children[1]);
+    node_t *index = node->children[1];
+    generate_expression(index);
 
     // Place the base of the array into %r10
     EMIT("leaq .%s(%s), %s", symbol->name, RIP, R10);
@@ -225,57 +243,70 @@ static const char *generate_array_access(node_t *node) {
 /* Generates code to evaluate the expression, and place the result in %rax */
 static void generate_expression(node_t *expression) {
     switch (expression->type) {
-        case NUMBER_DATA:
+        case NUMBER_DATA: {
             // Simply place the number into %rax
             EMIT("movq $%ld, %s", *(int64_t *)expression->data, RAX);
             break;
-        case IDENTIFIER_DATA:
+        }
+        case IDENTIFIER_DATA: {
             // Load the variable, and put the result in RAX
             MOVQ(generate_variable_access(expression), RAX);
             break;
-        case ARRAY_INDEXING:
+        }
+        case ARRAY_INDEXING: {
             // Load the value pointed to by array[idx], and put the result in RAX
             MOVQ(generate_array_access(expression), RAX);
             break;
+        }
         case EXPRESSION: {
             char *data = expression->data;
-            if (strcmp(data, "call") == 0) {
+            node_t *left = expression->children[0];
+            node_t *right = expression->children[1];
+
+            bool is_function_call = strcmp(data, "call") == 0;
+            bool is_plus = strcmp(data, "+") == 0;
+            bool is_minus = strcmp(data, "-") == 0;
+            bool is_multiplication = strcmp(data, "*") == 0;
+            bool is_division = strcmp(data, "/") == 0;
+
+            if (is_function_call) {
                 generate_function_call(expression);
-            } else if (strcmp(data, "+") == 0) {
-                generate_expression(expression->children[0]);
+            } else if (is_plus) {
+                generate_expression(left);
                 PUSHQ(RAX);
-                generate_expression(expression->children[1]);
+                generate_expression(right);
                 POPQ(R10);
                 ADDQ(R10, RAX);
-            } else if (strcmp(data, "-") == 0) {
+            } else if (is_minus) {
                 if (expression->n_children == 1) {
                     // Unary minus
-                    generate_expression(expression->children[0]);
+                    generate_expression(left);
                     NEGQ(RAX);
                 } else {
                     // Binary minus. Evaluate RHS first, to get the result in RAX easier
-                    generate_expression(expression->children[1]);
+                    generate_expression(right);
                     PUSHQ(RAX);
-                    generate_expression(expression->children[0]);
+                    generate_expression(left);
                     POPQ(R10);
                     SUBQ(R10, RAX);
                 }
-            } else if (strcmp(data, "*") == 0) {
+            } else if (is_multiplication) {
                 // Multiplication does not need to do sign extend
-                generate_expression(expression->children[0]);
+                generate_expression(left);
                 PUSHQ(RAX);
-                generate_expression(expression->children[1]);
+                generate_expression(right);
                 POPQ(R10);
                 IMULQ(R10, RAX);
-            } else if (strcmp(data, "/") == 0) {
-                generate_expression(expression->children[1]);
+            } else if (is_division) {
+                generate_expression(right);
                 PUSHQ(RAX);
-                generate_expression(expression->children[0]);
+                generate_expression(left);
                 CQO;  // Sign extend RAX -> RDX:RAX
                 POPQ(R10);
                 IDIVQ(R10);  // Didivde RDX:RAX by R10, placing the result in RAX
-            } else
+            } else {
                 assert(false && "Unknown expression operation");
+            }
             break;
         }
         default:
@@ -284,30 +315,30 @@ static void generate_expression(node_t *expression) {
 }
 
 static void generate_assignment_statement(node_t *statement) {
-    node_t *dest = statement->children[0];
+    node_t *destination = statement->children[0];
     node_t *expression = statement->children[1];
     generate_expression(expression);
 
-    if (dest->type == IDENTIFIER_DATA)
-        MOVQ(RAX, generate_variable_access(dest));
+    if (destination->type == IDENTIFIER_DATA)
+        MOVQ(RAX, generate_variable_access(destination));
     else {
         // Store rax until the final address of the array element is found,
         // since array index calculation can change registers
         PUSHQ(RAX);
-        const char *dest_mem = generate_array_access(dest);
+        const char *destination_memory = generate_array_access(destination);
         POPQ(RAX);
-        MOVQ(RAX, dest_mem);
+        MOVQ(RAX, destination_memory);
     }
 }
 
 static void generate_print_statement(node_t *statement) {
     for (size_t i = 0; i < statement->n_children; i++) {
-        node_t *item = statement->children[i];
-        if (item->type == STRING_DATA) {
+        node_t *child = statement->children[i];
+        if (child->type == STRING_DATA) {
             EMIT("leaq strout(%s), %s", RIP, RDI);
-            EMIT("leaq string%ld(%s), %s", *(uint64_t *)item->data, RIP, RSI);
+            EMIT("leaq string%ld(%s), %s", *(uint64_t *)child->data, RIP, RSI);
         } else {
-            generate_expression(item);
+            generate_expression(child);
             MOVQ(RAX, RSI);
             EMIT("leaq intout(%s), %s", RIP, RDI);
         }
@@ -319,7 +350,8 @@ static void generate_print_statement(node_t *statement) {
 }
 
 static void generate_return_statement(node_t *statement) {
-    generate_expression(statement->children[0]);
+    node_t *expression = statement->children[0];
+    generate_expression(expression);
     MOVQ(RBP, RSP);
     POPQ(RBP);
     RET;
@@ -357,17 +389,20 @@ static void generate_break_statement() {
     // You can use a global variable to keep track of the innermost call to generate_while_statement().
 }
 
+static void generate_block_statement(node_t *node) {
+    // All handling of pushing and popping scores has already been done
+    // Just generate the statements that make up the statement body, one by one
+    node_t *statement_list = node->children[node->n_children - 1];
+    for (size_t i = 0; i < statement_list->n_children; i++)
+        generate_statement(statement_list->children[i]);
+}
+
 /* Recursively generate the given statement node, and all sub-statements. */
 static void generate_statement(node_t *node) {
     switch (node->type) {
-        case BLOCK: {
-            // All handling of pushing and popping scores has already been done
-            // Just generate the statements that make up the statement body, one by one
-            node_t *statement_list = node->children[node->n_children - 1];
-            for (size_t i = 0; i < statement_list->n_children; i++)
-                generate_statement(statement_list->children[i]);
+        case BLOCK:
+            generate_block_statement(node);
             break;
-        }
         case ASSIGNMENT_STATEMENT:
             generate_assignment_statement(node);
             break;
@@ -393,10 +428,6 @@ static void generate_statement(node_t *node) {
 
 static void generate_safe_printf(void) {
     LABEL("safe_printf");
-
-    // This is the hack that used to work
-    // MOVQ ( "$0", RAX );
-    // JMP ( "printf" );
 
     PUSHQ(RBP);
     MOVQ(RSP, RBP);
