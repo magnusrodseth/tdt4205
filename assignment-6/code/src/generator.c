@@ -10,19 +10,18 @@ static const char *REGISTER_PARAMS[6] = {RDI, RSI, RDX, RCX, R8, R9};
 // Takes in a symbol of type SYMBOL_FUNCTION, and returns how many parameters the function takes
 #define FUNC_PARAM_COUNT(func) ((func)->node->children[1]->n_children)
 
-static void generate_stringtable(void);
+static void generate_string_table(void);
 static void generate_global_variables(void);
 static void generate_function(symbol_t *function);
 static void generate_expression(node_t *expression);
 static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
+static symbol_t *get_first_function();
 
-/* Entry point for code generation */
-void generate_program(void) {
-    generate_stringtable();
-    generate_global_variables();
+/* Global variable used to make the functon currently being generated acessiable from anywhere */
+static symbol_t *current_function;
 
-    DIRECTIVE(".text");
+static symbol_t *get_first_function() {
     symbol_t *first_function = NULL;
     for (size_t i = 0; i < global_symbols->n_symbols; i++) {
         symbol_t *symbol = global_symbols->symbols[i];
@@ -37,11 +36,23 @@ void generate_program(void) {
         fprintf(stderr, "error: program contained no functions\n");
         exit(EXIT_FAILURE);
     }
+
+    return first_function;
+}
+
+/* Entry point for code generation */
+void generate_program(void) {
+    generate_string_table();
+    generate_global_variables();
+
+    DIRECTIVE(".text");
+    symbol_t *first_function = get_first_function();
+
     generate_main(first_function);
 }
 
 /* Prints one .asciz entry for each string in the global string_list */
-static void generate_stringtable(void) {
+static void generate_string_table(void) {
     DIRECTIVE(".section %s", ASM_STRING_SECTION);
     // These strings are used by printf
     DIRECTIVE("intout: .asciz \"%s\"", "%ld ");
@@ -49,14 +60,16 @@ static void generate_stringtable(void) {
     // This string is used by the entry point-wrapper
     DIRECTIVE("errout: .asciz \"%s\"", "Wrong number of arguments");
 
-    for (size_t i = 0; i < string_list_len; i++)
+    for (size_t i = 0; i < string_list_len; i++) {
         DIRECTIVE("string%ld: \t.asciz %s", i, string_list[i]);
+    }
 }
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */
 static void generate_global_variables(void) {
     DIRECTIVE(".section %s", ASM_BSS_SECTION);
     DIRECTIVE(".align 8");
+
     for (size_t i = 0; i < global_symbols->n_symbols; i++) {
         symbol_t *symbol = global_symbols->symbols[i];
         if (symbol->type == SYMBOL_GLOBAL_VAR) {
@@ -71,9 +84,6 @@ static void generate_global_variables(void) {
         }
     }
 }
-
-/* Global variable used to make the functon currently being generated acessiable from anywhere */
-static symbol_t *current_function;
 
 /* Prints the entry point. preamble, statements and epilouge of the given function */
 static void generate_function(symbol_t *function) {
