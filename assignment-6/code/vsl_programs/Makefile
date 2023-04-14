@@ -12,6 +12,7 @@ PS5_SYMBOLS := $(patsubst %.vsl, %.symbols, $(wildcard ps5-codegen1/*.vsl))
 PS5_ASSEMBLED := $(patsubst %.vsl, %.out, $(wildcard ps5-codegen1/*.vsl))
 PS6_EXAMPLES := $(patsubst %.vsl, %.S, $(wildcard ps6-codegen2/*.vsl))
 PS6_ASSEMBLED := $(patsubst %.vsl, %.out, $(wildcard ps6-codegen2/*.vsl))
+PS6_GRAPHVIZ := $(patsubst %.vsl, %.svg, $(wildcard ps6-codegen2/*.vsl))
 
 .PHONY: all ps2 ps2-graphviz ps3 ps3-graphviz ps4 ps5 ps5-assemble ps6 ps6-assemble clean ps2-check
 
@@ -44,6 +45,7 @@ ps5-graphviz: $(PS5_GRAPHVIZ)
 ps5-assemble: $(PS5_ASSEMBLED)
 
 ps6: $(PS6_EXAMPLES)
+ps6-graphviz: $(PS6_GRAPHVIZ)
 ps6-assemble: $(PS6_ASSEMBLED)
 
 ps2-parser/%.ast: ps2-parser/%.vsl $(VSLC)

@@ -22,6 +22,12 @@ static symbol_t *get_topmost_function();
 /* Global variable used to make the functon currently being generated acessiable from anywhere */
 static symbol_t *current_function;
 
+/**
+ * Global variable used to keep track of the innermost while loop, so we can jump to the correct
+ * place when a break statement is encountered 
+ **/
+static int innermost_while = 0;
+
 static symbol_t *get_topmost_function() {
     symbol_t *first_function = NULL;
     for (size_t i = 0; i < global_symbols->n_symbols; i++) {
@@ -244,7 +250,7 @@ static const char *generate_array_access(node_t *node) {
 static void generate_expression(node_t *expression) {
     switch (expression->type) {
         case NUMBER_DATA: {
-            // Simply place the number into %rax
+            // Simply place the number into RAX
             EMIT("movq $%ld, %s", *(int64_t *)expression->data, RAX);
             break;
         }
@@ -364,6 +370,28 @@ static void generate_relation(node_t *relation) {
 
     // Remember that conditional jumps have different suffixes for
     // signed inequalities and unsigned inequalities. Use the signed variety
+
+    assert(relation->n_children == 2);
+    char *data = relation->data;
+
+    bool is_less_than = strcmp(data, "<") == 0;
+    bool is_less_than_or_equal = strcmp(data, "<=") == 0;
+    bool is_greater_than = strcmp(data, ">") == 0;
+    bool is_greater_than_or_equal = strcmp(data, ">=") == 0;
+    bool is_equal = strcmp(data, "==") == 0;
+    bool is_not_equal = strcmp(data, "!=") == 0;
+
+    node_t *left = relation->children[0];
+    node_t *right = relation->children[1];
+
+    // TODO: Is this correct?
+    generate_expression(left);
+    PUSHQ(RAX);
+    generate_expression(right);
+    POPQ(RAX);
+    CMPQ(R10, RAX);
+
+    // TODO: Return jX (find out what jX is - see recitation slides) or generate code directly
 }
 
 static void generate_if_statement(node_t *statement) {
@@ -375,18 +403,45 @@ static void generate_if_statement(node_t *statement) {
 
     // You will need to define your own unique labels for this if statement,
     // so consider using a global counter. Remember that
+
+    assert(statement->n_children == 2 || statement->n_children == 3);
+    node_t *relation = statement->children[0];
+    node_t *then_statement = statement->children[1];
+
+    generate_relation(relation);
+
+    bool has_else = statement->n_children == 3;
+    if (!has_else) {
+        // TODO
+    } else {
+        node_t *else_statement = statement->children[2];
+        // TODO
+    }
 }
 
 static void generate_while_statement(node_t *statement) {
     // TODO (2.2):
     // Implement while loops, similarily to the way if statements were generated.
     // Remember to make label names unique, and to handle nested while loops.
+
+    assert(statement->n_children == 2);
+    node_t *relation = statement->children[0];
+    node_t *block = statement->children[1];
+
+    generate_relation(relation);
+
+    // TODO
 }
 
 static void generate_break_statement() {
     // TODO (2.3):
     // Generate the break statement, jumping out past the end of the innermost while loop.
     // You can use a global variable to keep track of the innermost call to generate_while_statement().
+    // For the global variable, see `inntermost_while`.
+
+    // TODO
+    // When hitting a break, we can merely decrement the innermost while counter, and
+    // jump to the label with the corresponding number of the current value of `innermost_while`.
 }
 
 static void generate_block_statement(node_t *node) {
