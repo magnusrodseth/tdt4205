@@ -16,12 +16,12 @@ static void generate_function(symbol_t *function);
 static void generate_expression(node_t *expression);
 static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
-static symbol_t *get_first_function();
+static symbol_t *get_topmost_function();
 
 /* Global variable used to make the functon currently being generated acessiable from anywhere */
 static symbol_t *current_function;
 
-static symbol_t *get_first_function() {
+static symbol_t *get_topmost_function() {
     symbol_t *first_function = NULL;
     for (size_t i = 0; i < global_symbols->n_symbols; i++) {
         symbol_t *symbol = global_symbols->symbols[i];
@@ -46,8 +46,7 @@ void generate_program(void) {
     generate_global_variables();
 
     DIRECTIVE(".text");
-    symbol_t *first_function = get_first_function();
-
+    symbol_t *first_function = get_topmost_function();
     generate_main(first_function);
 }
 
