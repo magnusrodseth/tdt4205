@@ -23,5 +23,5 @@ make purge && make
 cd vsl_programs
 
 # Clean, compile the assembly code, and generate the executable
-make clean && make ps5 && make ps5-assemble
+make clean && make ps6 && make ps6-assemble
 ```
