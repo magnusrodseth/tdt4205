@@ -19,29 +19,28 @@
 #define R15 "%r15"
 #define RIP "%rip"
 
-#define MEM(reg) "("reg")"
-#define ARRAY_MEM(array,index,stride) "("array","index","stride")"
+#define MEM(reg) "(" reg ")"
+#define ARRAY_MEM(array, index, stride) "(" array "," index "," stride ")"
 
-#define DIRECTIVE(fmt, ...) printf(fmt "\n" __VA_OPT__(,) __VA_ARGS__)
-#define LABEL(name, ...) printf(name":\n" __VA_OPT__(,) __VA_ARGS__)
-#define EMIT(fmt, ...) printf("\t" fmt "\n" __VA_OPT__(,) __VA_ARGS__)
+#define DIRECTIVE(fmt, ...) printf(fmt "\n" __VA_OPT__(, ) __VA_ARGS__)
+#define LABEL(name, ...) printf(name ":\n" __VA_OPT__(, ) __VA_ARGS__)
+#define EMIT(fmt, ...) printf("\t" fmt "\n" __VA_OPT__(, ) __VA_ARGS__)
 
-#define MOVQ(src,dst)     EMIT("movq %s, %s", (src), (dst))
-#define PUSHQ(src)        EMIT("pushq %s", (src))
-#define POPQ(src)         EMIT("popq %s", (src))
+#define MOVQ(src, dst) EMIT("movq %s, %s", (src), (dst))
+#define PUSHQ(src) EMIT("pushq %s", (src))
+#define POPQ(src) EMIT("popq %s", (src))
 
-#define ADDQ(src,dst)     EMIT("addq %s, %s", (src), (dst))
-#define SUBQ(src,dst)     EMIT("subq %s, %s", (src), (dst))
-#define NEGQ(reg)         EMIT("negq %s", (reg))
+#define ADDQ(src, dst) EMIT("addq %s, %s", (src), (dst))
+#define SUBQ(src, dst) EMIT("subq %s, %s", (src), (dst))
+#define NEGQ(reg) EMIT("negq %s", (reg))
 
-#define IMULQ(src,dst)    EMIT("imulq %s, %s", (src), (dst))
-#define CQO               EMIT("cqo"); // Sign extend RAX -> RDX:RAX
-#define IDIVQ(by)         EMIT("idivq %s", (by))
+#define IMULQ(src, dst) EMIT("imulq %s, %s", (src), (dst))
+#define CQO EMIT("cqo");  // Sign extend RAX -> RDX:RAX
+#define IDIVQ(by) EMIT("idivq %s", (by))
 
-#define RET               EMIT("ret")
+#define RET EMIT("ret")
 
-#define CMPQ(op1,op2)     EMIT("cmpq %s, %s", (op1), (op2))
-#define JNE(label)        EMIT("jne %s", (label))
+#define CMPQ(op1, op2) EMIT("cmpq %s, %s", (op1), (op2))
+#define JNE(label) EMIT("jne %s", (label))
 
-
-#endif // EMIT_H_
+#endif  // EMIT_H_
