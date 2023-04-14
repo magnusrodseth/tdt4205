@@ -3,8 +3,10 @@ intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
 string0: 	.asciz "=========="
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -21,6 +23,7 @@ string0: 	.asciz "=========="
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 .max:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -30,6 +33,7 @@ string0: 	.asciz "=========="
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 .min:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -39,6 +43,7 @@ string0: 	.asciz "=========="
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

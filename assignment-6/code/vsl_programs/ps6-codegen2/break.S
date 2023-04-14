@@ -4,8 +4,10 @@ strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
 string0: 	.asciz "<="
 string1: 	.asciz "===="
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -16,6 +18,7 @@ string1: 	.asciz "===="
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

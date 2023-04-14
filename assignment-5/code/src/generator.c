@@ -10,8 +10,7 @@ static const char *REGISTER_PARAMS[6] = {RDI, RSI, RDX, RCX, R8, R9};
 // Takes in a symbol of type SYMBOL_FUNCTION, and returns how many parameters the function takes
 #define FUNC_PARAM_COUNT(func) ((func)->node->children[1]->n_children)
 
-static void
-generate_string_table(void);
+static void generate_string_table(void);
 static void generate_global_variables(void);
 static void generate_function(symbol_t *function);
 static void generate_expression(node_t *expression);
@@ -48,7 +47,6 @@ void generate_program(void) {
 
     DIRECTIVE(".text");
     symbol_t *first_function = get_topmost_function();
-
     generate_main(first_function);
 }
 
@@ -64,6 +62,8 @@ static void generate_string_table(void) {
     for (size_t i = 0; i < string_list_len; i++) {
         DIRECTIVE("string%ld: \t.asciz %s", i, string_list[i]);
     }
+
+    DIRECTIVE();
 }
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */
@@ -84,6 +84,8 @@ static void generate_global_variables(void) {
             DIRECTIVE(".%s: \t.zero %ld", symbol->name, length * 8);
         }
     }
+
+    DIRECTIVE();
 }
 
 /* Prints the entry point. preamble, statements and epilouge of the given function */
@@ -111,6 +113,8 @@ static void generate_function(symbol_t *function) {
     MOVQ(RBP, RSP);
     POPQ(RBP);
     RET;
+
+    DIRECTIVE();
 }
 
 static void generate_function_call(node_t *call) {

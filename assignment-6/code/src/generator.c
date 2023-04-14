@@ -62,6 +62,8 @@ static void generate_string_table(void) {
     for (size_t i = 0; i < string_list_len; i++) {
         DIRECTIVE("string%ld: \t.asciz %s", i, string_list[i]);
     }
+
+    DIRECTIVE();
 }
 
 /* Prints .zero entries in the .bss section to allocate room for global variables and arrays */
@@ -82,6 +84,8 @@ static void generate_global_variables(void) {
             DIRECTIVE(".%s: \t.zero %ld", symbol->name, length * 8);
         }
     }
+
+    DIRECTIVE();
 }
 
 /* Prints the entry point. preamble, statements and epilouge of the given function */
@@ -109,6 +113,8 @@ static void generate_function(symbol_t *function) {
     MOVQ(RBP, RSP);
     POPQ(RBP);
     RET;
+
+    DIRECTIVE();
 }
 
 static void generate_function_call(node_t *call) {

@@ -11,8 +11,10 @@ string5: 	.asciz "WRONG3"
 string6: 	.asciz "Correct"
 string7: 	.asciz "WRONG4"
 string8: 	.asciz "Output"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -26,6 +28,7 @@ string8: 	.asciz "Output"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

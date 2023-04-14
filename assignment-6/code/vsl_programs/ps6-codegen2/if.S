@@ -11,8 +11,10 @@ string5: 	.asciz "a is however 6"
 string6: 	.asciz "a is however 7"
 string7: 	.asciz "a is however 8"
 string8: 	.asciz "a is neither 0, 6, 7 or 8, but"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -22,6 +24,7 @@ string8: 	.asciz "a is neither 0, 6, 7 or 8, but"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

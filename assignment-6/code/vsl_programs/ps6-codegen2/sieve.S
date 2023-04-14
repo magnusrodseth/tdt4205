@@ -2,9 +2,11 @@
 intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
+
 .section .bss
 .align 8
 .sieve: 	.zero 8000
+
 .text
 .main:
 	pushq %rbp
@@ -21,6 +23,7 @@ errout: .asciz "Wrong number of arguments"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

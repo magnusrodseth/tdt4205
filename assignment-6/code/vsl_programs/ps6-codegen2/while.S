@@ -7,8 +7,10 @@ string1: 	.asciz "i is now"
 string2: 	.asciz "Now printing every product with factors less than 6"
 string3: 	.asciz "*"
 string4: 	.asciz "="
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -33,6 +35,7 @@ string4: 	.asciz "="
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp
