@@ -1,0 +1,19 @@
+
+// This program uses a sieve to print the first 1000 primes
+
+var sieve[1000]
+
+func main() begin
+    for i in 2..1000 do begin
+        // We are a prime!
+        if sieve[i] = 0 then begin
+            print i
+
+            for j in 2..1000 do begin
+                if j*i > 1000-1 then
+                    break
+                sieve[i*j] := 1
+            end
+        end
+    end
+end

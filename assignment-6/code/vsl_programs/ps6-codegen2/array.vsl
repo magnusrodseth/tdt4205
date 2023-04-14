@@ -1,0 +1,37 @@
+
+// Expected output
+// Fibonnacci is now calculated, now using array as a linked list!
+// at array[ 0 ] we find 1
+// array[array[ 0 ]] is  2
+// at array[ 1 ] we find 2
+// array[array[ 1 ]] is  3
+// at array[ 2 ] we find 3
+// array[array[ 2 ]] is  5
+// at array[ 3 ] we find 5
+// array[array[ 3 ]] is  13
+// at array[ 5 ] we find 13
+// array[array[ 5 ]] is  610
+// at array[ 13 ] we find 610
+
+var array[100]
+
+func main() begin
+    var i
+    // To avoid self-edges, we start our fibonacci at 1, 2, 3, 5, etc.
+    array[0] := 1
+    array[1] := 2
+    for i in 2..100 do
+        array[i] := array[i-1] + array[i-2]
+
+    print "Fibonnacci is now calculated, now using array as a linked list!"
+
+    i := 0
+    while 1=1 do begin
+        print "at array[",i,"] we find", array[i]
+        if array[i] < 100 then begin
+            print "array[array[",i,"]] is ", array[array[i]]
+            i := array[i]
+        end else
+            break
+    end
+end

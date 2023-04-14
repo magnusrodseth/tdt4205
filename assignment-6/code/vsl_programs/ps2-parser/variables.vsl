@@ -1,0 +1,19 @@
+
+var global_var
+
+func my_func(param)
+begin
+    var local_var, local_var2
+    local_var := 1
+end
+
+var glob1, glob2
+
+func main()
+begin
+    var main_local_var
+    begin
+        var main_local_nested_var
+        main_local_nested_var := main_local_var
+    end
+end

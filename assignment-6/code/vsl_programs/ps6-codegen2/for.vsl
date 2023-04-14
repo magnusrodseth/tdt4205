@@ -1,0 +1,48 @@
+
+// Expected output
+// 0
+// 1
+// 2
+// 3
+// 4
+// ==========
+// 1
+// 2
+// 3
+// ==========
+// 2
+// ==========
+// 2
+// ==========
+// 1
+// 2
+// 3
+// ==========
+// 0
+// 1
+// 2
+// 3
+// 4
+
+func main() begin
+    for i in 0..6 do begin
+        if i!=0 then
+            print "=========="
+        for j in min(i, 5-i)..max(i, 5-i) do
+            print j
+    end
+end
+
+func max(a, b) begin
+    if a>b then
+        return a
+    else
+        return b
+end
+
+func min(a, b) begin
+    if a<b then
+        return a
+    else
+        return b
+end

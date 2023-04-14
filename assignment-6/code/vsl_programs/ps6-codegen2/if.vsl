@@ -1,0 +1,24 @@
+
+func main(a) begin
+    if a<10 then
+        print "a is less than 10"
+    if a>-5 then
+        print "a is more than -5"
+    else
+        print "a is less than or equal to -5"
+
+    if a = 5 then
+        print "a is equal to 5"
+
+    if a != 0 then begin
+        print "a is not equal to 0"
+        if a = 6 then
+            print "a is however 6"
+        else if a = 7 then
+            print "a is however 7"
+        else if a = 8 then
+            print "a is however 8"
+        else
+            print "a is neither 0, 6, 7 or 8, but", a
+    end
+end

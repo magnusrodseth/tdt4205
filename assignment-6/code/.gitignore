@@ -1,0 +1,16 @@
+.DS_Store
+.idea
+*.log
+tmp/
+
+*.o
+y.tab.h
+scanner.c
+parser.c
+vslc
+
+*.ast
+*.svg
+*.symbols
+*.out
+!vsl_programs/*/suggested/*

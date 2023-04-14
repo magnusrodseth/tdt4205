@@ -1,0 +1,9 @@
+func main(a, b, c, d, e, f, g, h) begin
+    print "Inside main, the arguments are:", a, b, c, d, e, f, g, h
+    return otherFunc(a, b, c, d, e, f, g, h)
+end
+
+func otherFunc(a, b, c, d, e, f, g, h) begin
+    print "Inside otherFunc, the arguments are:", a, b, c, d, e, f, g, h
+    return 24
+end
