@@ -1,8 +1,8 @@
-.section .rodata
+.section __TEXT, __cstring
 intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
-.section .bss
+.section __DATA, __bss
 .align 8
 .sieve: 	.zero 8000
 .text
@@ -43,4 +43,10 @@ safe_printf:
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-.global main
+.set printf, _printf
+.set putchar, _putchar
+.set puts, _puts
+.set strtol, _strtol
+.set exit, _exit
+.set _main, main
+.global _main

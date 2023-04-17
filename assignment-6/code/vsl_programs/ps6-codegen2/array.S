@@ -1,4 +1,4 @@
-.section .rodata
+.section __TEXT, __cstring
 intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
@@ -7,7 +7,7 @@ string1: 	.asciz "at array["
 string2: 	.asciz "] we find"
 string3: 	.asciz "array[array["
 string4: 	.asciz "]] is "
-.section .bss
+.section __DATA, __bss
 .align 8
 .array: 	.zero 800
 .text
@@ -68,4 +68,10 @@ safe_printf:
 	movq %rbp, %rsp
 	popq %rbp
 	ret
-.global main
+.set printf, _printf
+.set putchar, _putchar
+.set puts, _puts
+.set strtol, _strtol
+.set exit, _exit
+.set _main, main
+.global _main

@@ -6,7 +6,7 @@ Because this assignment features a lot of assembly code on the ELF format, the p
 
 ## 1 - Data flow analysis
 
-> TODO
+The deliverable for the theoretical questions can be found in the file [`theory/ps6.pdf`](./theory/ps6.pdf).
 
 ## 2 - Code Generation Part II
 
