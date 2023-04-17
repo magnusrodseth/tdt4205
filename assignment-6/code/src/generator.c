@@ -364,34 +364,17 @@ static void generate_return_statement(node_t *statement) {
 }
 
 static void generate_relation(node_t *relation) {
-    // TODO (2.1):
-    // Generate code for evaluating the relation's LHS and RHS, and compare them.
-    // Remember that AT&T's cmp instruction is a bit "backwards" in terms of LHS and RHS.
-
-    // Remember that conditional jumps have different suffixes for
-    // signed inequalities and unsigned inequalities. Use the signed variety
-
     assert(relation->n_children == 2);
-    char *data = relation->data;
-
-    bool is_less_than = strcmp(data, "<") == 0;
-    bool is_less_than_or_equal = strcmp(data, "<=") == 0;
-    bool is_greater_than = strcmp(data, ">") == 0;
-    bool is_greater_than_or_equal = strcmp(data, ">=") == 0;
-    bool is_equal = strcmp(data, "==") == 0;
-    bool is_not_equal = strcmp(data, "!=") == 0;
 
     node_t *left = relation->children[0];
     node_t *right = relation->children[1];
 
-    // TODO: Is this correct?
     generate_expression(left);
     PUSHQ(RAX);
     generate_expression(right);
-    POPQ(RAX);
+    POPQ(R10);
+    // Left is now in R10, right is in RAX.
     CMPQ(R10, RAX);
-
-    // TODO: Return jX (find out what jX is - see recitation slides) or generate code directly
 }
 
 static void generate_if_statement(node_t *statement) {
@@ -409,6 +392,15 @@ static void generate_if_statement(node_t *statement) {
     node_t *then_statement = statement->children[1];
 
     generate_relation(relation);
+
+    char *data = relation->data;
+
+    bool is_less_than = strcmp(data, "<") == 0;
+    bool is_less_than_or_equal = strcmp(data, "<=") == 0;
+    bool is_greater_than = strcmp(data, ">") == 0;
+    bool is_greater_than_or_equal = strcmp(data, ">=") == 0;
+    bool is_equal = strcmp(data, "==") == 0;
+    bool is_not_equal = strcmp(data, "!=") == 0;
 
     bool has_else = statement->n_children == 3;
     if (!has_else) {

@@ -40,7 +40,7 @@ string4: 	.asciz "]] is "
 	movq -16(%rbp), %rax
 	pushq %rax
 	movq -24(%rbp), %rax
-	popq %rax
+	popq %r10
 	cmpq %r10, %rax
 	leaq strout(%rip), %rdi
 	leaq string0(%rip), %rsi
@@ -52,7 +52,7 @@ string4: 	.asciz "]] is "
 	movq $1, %rax
 	pushq %rax
 	movq $1, %rax
-	popq %rax
+	popq %r10
 	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp

@@ -22,7 +22,7 @@ string8: 	.asciz "Output"
 	movq $1, %rax
 	pushq %rax
 	movq $1, %rax
-	popq %rax
+	popq %r10
 	cmpq %r10, %rax
 	leaq strout(%rip), %rdi
 	leaq string8(%rip), %rsi

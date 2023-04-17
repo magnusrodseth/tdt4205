@@ -22,7 +22,7 @@ errout: .asciz "Wrong number of arguments"
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq -16(%rbp), %rax
-	popq %rax
+	popq %r10
 	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
