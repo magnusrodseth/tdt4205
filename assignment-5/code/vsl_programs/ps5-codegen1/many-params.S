@@ -2,13 +2,11 @@
 intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
-string0: .asciz "Inside main, the arguments are:"
-string1: .asciz "Inside otherFunc, the arguments are:"
-
+string0: 	.asciz "Inside main, the arguments are:"
+string1: 	.asciz "Inside otherFunc, the arguments are:"
 .section .bss
 .align 8
-
-.section .text
+.text
 .main:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -18,9 +16,74 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	leaq strout(%rip), %rdi
+	leaq string0(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -16(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -24(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -32(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -40(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -48(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq 16(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq 24(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	movq 24(%rbp), %rax
+	pushq %rax
+	movq 16(%rbp), %rax
+	pushq %rax
+	movq -48(%rbp), %rax
+	pushq %rax
+	movq -40(%rbp), %rax
+	pushq %rax
+	movq -32(%rbp), %rax
+	pushq %rax
+	movq -24(%rbp), %rax
+	pushq %rax
+	movq -16(%rbp), %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	popq %rdi
+	popq %rsi
+	popq %rdx
+	popq %rcx
+	popq %r8
+	popq %r9
+	call .otherFunc
+	addq $16, %rsp
 	movq %rbp, %rsp
 	popq %rbp
-
+	ret
+	movq $0, %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
 .otherFunc:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -30,10 +93,51 @@ string1: .asciz "Inside otherFunc, the arguments are:"
 	pushq %rcx
 	pushq %r8
 	pushq %r9
+	leaq strout(%rip), %rdi
+	leaq string1(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -16(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -24(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -32(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -40(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq -48(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq 16(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq 24(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	movq $24, %rax
 	movq %rbp, %rsp
 	popq %rbp
-
-.globl main
+	ret
+	movq $0, %rax
+	movq %rbp, %rsp
+	popq %rbp
+	ret
 main:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -64,7 +168,16 @@ PARSE_ARGV:
 	movq %rax, %rdi
 	call exit
 ABORT:
-	movq $errout, %rdi
+	leaq errout(%rip), %rdi
 	call puts
 	movq $1, %rdi
 	call exit
+safe_printf:
+	pushq %rbp
+	movq %rsp, %rbp
+	andq $-16, %rsp
+	call printf
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+.global main

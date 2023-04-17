@@ -7,9 +7,17 @@ string1: 	.asciz "at array["
 string2: 	.asciz "] we find"
 string3: 	.asciz "array[array["
 string4: 	.asciz "]] is "
+<<<<<<< HEAD
 .section __DATA, __bss
+||||||| update readme
+.section .bss
+=======
+
+.section .bss
+>>>>>>> main
 .align 8
 .array: 	.zero 800
+
 .text
 .main:
 	pushq %rbp
@@ -46,6 +54,7 @@ string4: 	.asciz "]] is "
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

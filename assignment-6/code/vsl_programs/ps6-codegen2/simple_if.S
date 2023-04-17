@@ -11,8 +11,16 @@ string5: 	.asciz "WRONG3"
 string6: 	.asciz "Correct"
 string7: 	.asciz "WRONG4"
 string8: 	.asciz "Output"
+<<<<<<< HEAD
 .section __DATA, __bss
+||||||| update readme
+.section .bss
+=======
+
+.section .bss
+>>>>>>> main
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -26,6 +34,7 @@ string8: 	.asciz "Output"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

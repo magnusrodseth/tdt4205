@@ -2,29 +2,105 @@
 intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
-string0: .asciz "num*2"
-string1: .asciz "num+5"
-string2: .asciz "num/3"
-string3: .asciz "4*(-num)"
-string4: .asciz "(num-1)*(num+1)*(num+3)"
-
+string0: 	.asciz "num*2"
+string1: 	.asciz "num+5"
+string2: 	.asciz "num/3"
+string3: 	.asciz "4*(-num)"
+string4: 	.asciz "(num-1)*(num+1)*(num+3)"
 .section .bss
 .align 8
-
-.section .text
+.text
 .main:
 	pushq %rbp
 	movq %rsp, %rbp
 	pushq %rdi
-	pushq %rsi
-	pushq %rdx
-	pushq %rcx
-	pushq %r8
-	pushq %r9
+	leaq strout(%rip), %rdi
+	leaq string0(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $2, %rax
+	popq %r10
+	imulq %r10, %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	leaq strout(%rip), %rdi
+	leaq string1(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $5, %rax
+	popq %r10
+	addq %r10, %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	leaq strout(%rip), %rdi
+	leaq string2(%rip), %rsi
+	call safe_printf
+	movq $3, %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	cqo
+	popq %r10
+	idivq %r10
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	leaq strout(%rip), %rdi
+	leaq string3(%rip), %rsi
+	call safe_printf
+	movq $4, %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	negq %rax
+	popq %r10
+	imulq %r10, %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	leaq strout(%rip), %rdi
+	leaq string4(%rip), %rsi
+	call safe_printf
+	movq $1, %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	popq %r10
+	subq %r10, %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $1, %rax
+	popq %r10
+	addq %r10, %rax
+	popq %r10
+	imulq %r10, %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $3, %rax
+	popq %r10
+	addq %r10, %rax
+	popq %r10
+	imulq %r10, %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp
-
-.globl main
+	ret
 main:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -50,7 +126,16 @@ PARSE_ARGV:
 	movq %rax, %rdi
 	call exit
 ABORT:
-	movq $errout, %rdi
+	leaq errout(%rip), %rdi
 	call puts
 	movq $1, %rdi
 	call exit
+safe_printf:
+	pushq %rbp
+	movq %rsp, %rbp
+	andq $-16, %rsp
+	call printf
+	movq %rbp, %rsp
+	popq %rbp
+	ret
+.global main
