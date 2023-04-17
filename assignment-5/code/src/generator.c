@@ -357,38 +357,6 @@ static void generate_return_statement(node_t *statement) {
     RET;
 }
 
-static void generate_relation(node_t *relation) {
-    // TODO (2.1):
-    // Generate code for evaluating the relation's LHS and RHS, and compare them.
-    // Remember that AT&T's cmp instruction is a bit "backwards" in terms of LHS and RHS.
-
-    // Remember that conditional jumps have different suffixes for
-    // signed inequalities and unsigned inequalities. Use the signed variety
-}
-
-static void generate_if_statement(node_t *statement) {
-    // TODO (2.1):
-    // Generate code for emitting both if-then statements, and if-then-else statements.
-    // Check the number of children to determine which.
-
-    // Use generate_relation, and conditional jumps to skip the block not taken
-
-    // You will need to define your own unique labels for this if statement,
-    // so consider using a global counter. Remember that
-}
-
-static void generate_while_statement(node_t *statement) {
-    // TODO (2.2):
-    // Implement while loops, similarily to the way if statements were generated.
-    // Remember to make label names unique, and to handle nested while loops.
-}
-
-static void generate_break_statement() {
-    // TODO (2.3):
-    // Generate the break statement, jumping out past the end of the innermost while loop.
-    // You can use a global variable to keep track of the innermost call to generate_while_statement().
-}
-
 static void generate_block_statement(node_t *node) {
     // All handling of pushing and popping scores has already been done
     // Just generate the statements that make up the statement body, one by one
@@ -411,15 +379,6 @@ static void generate_statement(node_t *node) {
             break;
         case RETURN_STATEMENT:
             generate_return_statement(node);
-            break;
-        case IF_STATEMENT:
-            generate_if_statement(node);
-            break;
-        case WHILE_STATEMENT:
-            generate_while_statement(node);
-            break;
-        case BREAK_STATEMENT:
-            generate_break_statement();
             break;
         default:
             assert(false && "Unknown statement type");

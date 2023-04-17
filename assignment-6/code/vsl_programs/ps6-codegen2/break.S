@@ -18,7 +18,7 @@ string1: 	.asciz "===="
 	pushq %rax
 	movq $1, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

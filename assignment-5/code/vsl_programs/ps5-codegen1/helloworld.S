@@ -3,8 +3,10 @@ intout: .asciz "%ld "
 strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
 string0: 	.asciz "Hello, World!"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -18,6 +20,7 @@ string0: 	.asciz "Hello, World!"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

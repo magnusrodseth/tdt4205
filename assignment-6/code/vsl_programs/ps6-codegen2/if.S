@@ -20,26 +20,125 @@ string8: 	.asciz "a is neither 0, 6, 7 or 8, but"
 	pushq %rbp
 	movq %rsp, %rbp
 	pushq %rdi
+if0:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $10, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
+	jge else0
+	leaq strout(%rip), %rdi
+	leaq string0(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif0
+else0:
+endif0:
+if1:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $-5, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
+	jle else1
+	leaq strout(%rip), %rdi
+	leaq string1(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif1
+else1:
+	leaq strout(%rip), %rdi
+	leaq string2(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+endif1:
+if2:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $5, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
+	jne else2
+	leaq strout(%rip), %rdi
+	leaq string3(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif2
+else2:
+endif2:
+if3:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $0, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
+	je else3
+	leaq strout(%rip), %rdi
+	leaq string4(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+if4:
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $6, %rax
+	popq %r10
+	cmpq %rax, %r10
+	jne else4
+	leaq strout(%rip), %rdi
+	leaq string5(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif4
+else4:
+if5:
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $7, %rax
+	popq %r10
+	cmpq %rax, %r10
+	jne else5
+	leaq strout(%rip), %rdi
+	leaq string6(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif5
+else5:
+if6:
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $8, %rax
+	popq %r10
+	cmpq %rax, %r10
+	jne else6
+	leaq strout(%rip), %rdi
+	leaq string7(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif6
+else6:
+	leaq strout(%rip), %rdi
+	leaq string8(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+endif6:
+endif5:
+endif4:
+	jmp endif3
+else3:
+endif3:
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

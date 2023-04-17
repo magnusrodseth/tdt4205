@@ -19,11 +19,86 @@ string8: 	.asciz "Output"
 .main:
 	pushq %rbp
 	movq %rsp, %rbp
+if0:
 	movq $1, %rax
 	pushq %rax
 	movq $1, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
+	jne else0
+	leaq strout(%rip), %rdi
+	leaq string0(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+if1:
+	movq $1, %rax
+	pushq %rax
+	movq $2, %rax
+	popq %r10
+	cmpq %rax, %r10
+	jge else1
+	leaq strout(%rip), %rdi
+	leaq string1(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif1
+else1:
+	leaq strout(%rip), %rdi
+	leaq string2(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+endif1:
+if2:
+	movq $-2, %rax
+	pushq %rax
+	movq $1, %rax
+	popq %r10
+	cmpq %rax, %r10
+	jle else2
+	leaq strout(%rip), %rdi
+	leaq string3(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif2
+else2:
+if3:
+	movq $1, %rax
+	pushq %rax
+	movq $2, %rax
+	popq %r10
+	cmpq %rax, %r10
+	je else3
+	leaq strout(%rip), %rdi
+	leaq string4(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif3
+else3:
+	leaq strout(%rip), %rdi
+	leaq string5(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+endif3:
+endif2:
+	leaq strout(%rip), %rdi
+	leaq string6(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	jmp endif0
+else0:
+	leaq strout(%rip), %rdi
+	leaq string7(%rip), %rsi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+endif0:
 	leaq strout(%rip), %rdi
 	leaq string8(%rip), %rsi
 	call safe_printf

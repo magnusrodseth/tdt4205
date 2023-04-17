@@ -7,8 +7,10 @@ string1: 	.asciz "num+5"
 string2: 	.asciz "num/3"
 string3: 	.asciz "4*(-num)"
 string4: 	.asciz "(num-1)*(num+1)*(num+3)"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -101,6 +103,7 @@ string4: 	.asciz "(num-1)*(num+1)*(num+3)"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

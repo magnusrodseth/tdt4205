@@ -5,8 +5,10 @@ errout: .asciz "Wrong number of arguments"
 string0: 	.asciz "Now, a b c are"
 string1: 	.asciz "In here, a b c are"
 string2: 	.asciz "Out here, a b c are"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -76,6 +78,7 @@ string2: 	.asciz "Out here, a b c are"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

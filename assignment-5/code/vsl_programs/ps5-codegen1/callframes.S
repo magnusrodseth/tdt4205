@@ -4,8 +4,10 @@ strout: .asciz "%s "
 errout: .asciz "Wrong number of arguments"
 string0: 	.asciz "Printing the sum of all integers from"
 string1: 	.asciz "up to, but not including"
+
 .section .bss
 .align 8
+
 .text
 .main:
 	pushq %rbp
@@ -47,6 +49,7 @@ string1: 	.asciz "up to, but not including"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 .sumRange:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -76,6 +79,7 @@ string1: 	.asciz "up to, but not including"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 .sumUntil:
 	pushq %rbp
 	movq %rsp, %rbp
@@ -106,6 +110,7 @@ string1: 	.asciz "up to, but not including"
 	movq %rbp, %rsp
 	popq %rbp
 	ret
+
 main:
 	pushq %rbp
 	movq %rsp, %rbp

@@ -41,7 +41,7 @@ string4: 	.asciz "]] is "
 	pushq %rax
 	movq -24(%rbp), %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
 	leaq strout(%rip), %rdi
 	leaq string0(%rip), %rsi
 	call safe_printf
@@ -53,7 +53,7 @@ string4: 	.asciz "]] is "
 	pushq %rax
 	movq $1, %rax
 	popq %r10
-	cmpq %r10, %rax
+	cmpq %rax, %r10
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

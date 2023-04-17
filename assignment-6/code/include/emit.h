@@ -44,7 +44,10 @@
 #define RET EMIT("ret")
 
 #define CMPQ(op1, op2) EMIT("cmpq %s, %s", (op1), (op2))
-#define JNE(label) EMIT("jne %s", (label))  // Conditional jump (not equal)
+#define JNE(label) EMIT("jne %s", (label))  // Conditional jump
+#define JE(label) EMIT("je %s", (label))    // Conditional jump
+#define JGE(label) EMIT("jge %s", (label))  // Conditional jump
+#define JLE(label) EMIT("jle %s", (label))  // Conditional jump
 #define JMP(label) EMIT("jmp %s", (label))  // Unconditional jump
 
 // These directives are set based on platform,

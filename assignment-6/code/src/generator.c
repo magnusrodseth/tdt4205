@@ -22,11 +22,18 @@ static symbol_t *get_topmost_function();
 /* Global variable used to make the functon currently being generated acessiable from anywhere */
 static symbol_t *current_function;
 
+static const int BUFFER_SIZE_IN_BYTES = 1024;
+
 /**
  * Global variable used to keep track of the innermost while loop, so we can jump to the correct
  * place when a break statement is encountered 
  **/
-static int innermost_while = 0;
+static int while_counter = 0;
+
+/**
+ * Global variable used to keep track of the current if statement.
+ */
+static int if_counter = 0;
 
 static symbol_t *get_topmost_function() {
     symbol_t *first_function = NULL;
@@ -370,22 +377,21 @@ static void generate_relation(node_t *relation) {
     node_t *right = relation->children[1];
 
     generate_expression(left);
+    // Push left onto the stack
     PUSHQ(RAX);
+    // Evaluate right and move it into RAX
     generate_expression(right);
+    // Pop left into R10
     POPQ(R10);
-    // Left is now in R10, right is in RAX.
-    CMPQ(R10, RAX);
+    // Compare left and right
+    CMPQ(RAX, R10);
 }
 
 static void generate_if_statement(node_t *statement) {
-    // TODO (2.1):
-    // Generate code for emitting both if-then statements, and if-then-else statements.
-    // Check the number of children to determine which.
+    int local_counter = if_counter;
+    if_counter++;
 
-    // Use generate_relation, and conditional jumps to skip the block not taken
-
-    // You will need to define your own unique labels for this if statement,
-    // so consider using a global counter. Remember that
+    LABEL("if%ld", local_counter);
 
     assert(statement->n_children == 2 || statement->n_children == 3);
     node_t *relation = statement->children[0];
@@ -396,19 +402,43 @@ static void generate_if_statement(node_t *statement) {
     char *data = relation->data;
 
     bool is_less_than = strcmp(data, "<") == 0;
-    bool is_less_than_or_equal = strcmp(data, "<=") == 0;
     bool is_greater_than = strcmp(data, ">") == 0;
-    bool is_greater_than_or_equal = strcmp(data, ">=") == 0;
-    bool is_equal = strcmp(data, "==") == 0;
+    bool is_equal = strcmp(data, "=") == 0;
     bool is_not_equal = strcmp(data, "!=") == 0;
 
-    bool has_else = statement->n_children == 3;
-    if (!has_else) {
-        // TODO
+    char else_label[BUFFER_SIZE_IN_BYTES];
+    memset(else_label, 0, BUFFER_SIZE_IN_BYTES);
+    snprintf(else_label, BUFFER_SIZE_IN_BYTES, "else%ld", local_counter);
+
+    if (is_equal) {
+        JNE(else_label);
+    } else if (is_not_equal) {
+        JE(else_label);
+    } else if (is_less_than) {
+        JGE(else_label);
+    } else if (is_greater_than) {
+        JLE(else_label);
     } else {
-        node_t *else_statement = statement->children[2];
-        // TODO
+        assert(false && "Unknown relation");
     }
+
+    generate_statement(then_statement);
+
+    // Jump to end of if statement
+    char endif_label[BUFFER_SIZE_IN_BYTES];
+    memset(endif_label, 0, BUFFER_SIZE_IN_BYTES);
+    snprintf(endif_label, BUFFER_SIZE_IN_BYTES, "endif%ld", local_counter);
+    JMP(endif_label);
+
+    LABEL("else%ld", local_counter);
+
+    bool has_else = statement->n_children == 3;
+    if (has_else) {
+        node_t *else_statement = statement->children[2];
+        generate_statement(else_statement);
+    }
+
+    LABEL("endif%ld", local_counter);
 }
 
 static void generate_while_statement(node_t *statement) {
