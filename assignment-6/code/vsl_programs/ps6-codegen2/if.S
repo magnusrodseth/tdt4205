@@ -28,6 +28,26 @@ string8: 	.asciz "a is neither 0, 6, 7 or 8, but"
 	pushq %rbp
 	movq %rsp, %rbp
 	pushq %rdi
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $10, %rax
+	popq %rax
+	cmpq %r10, %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $-5, %rax
+	popq %rax
+	cmpq %r10, %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $5, %rax
+	popq %rax
+	cmpq %r10, %rax
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $0, %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

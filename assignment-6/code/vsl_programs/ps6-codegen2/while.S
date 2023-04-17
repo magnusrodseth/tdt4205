@@ -30,6 +30,11 @@ string4: 	.asciz "="
 	call putchar
 	movq $1, %rax
 	movq %rax, -8(%rbp)
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $1000, %rax
+	popq %rax
+	cmpq %r10, %rax
 	leaq strout(%rip), %rdi
 	leaq string2(%rip), %rsi
 	call safe_printf
@@ -37,6 +42,11 @@ string4: 	.asciz "="
 	call putchar
 	movq $1, %rax
 	movq %rax, -8(%rbp)
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $6, %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

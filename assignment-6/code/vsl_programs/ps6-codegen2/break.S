@@ -20,6 +20,11 @@ string1: 	.asciz "===="
 	movq %rsp, %rbp
 	pushq $0
 	pushq $0
+	movq $1, %rax
+	pushq %rax
+	movq $1, %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

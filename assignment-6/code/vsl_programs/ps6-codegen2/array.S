@@ -43,6 +43,11 @@ string4: 	.asciz "]] is "
 	movq %rax, -16(%rbp)
 	movq $100, %rax
 	movq %rax, -24(%rbp)
+	movq -16(%rbp), %rax
+	pushq %rax
+	movq -24(%rbp), %rax
+	popq %rax
+	cmpq %r10, %rax
 	leaq strout(%rip), %rdi
 	leaq string0(%rip), %rsi
 	call safe_printf
@@ -50,6 +55,11 @@ string4: 	.asciz "]] is "
 	call putchar
 	movq $0, %rax
 	movq %rax, -8(%rbp)
+	movq $1, %rax
+	pushq %rax
+	movq $1, %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

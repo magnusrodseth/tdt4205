@@ -25,6 +25,11 @@ string0: 	.asciz "=========="
 	movq %rax, -8(%rbp)
 	movq $6, %rax
 	movq %rax, -16(%rbp)
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq -16(%rbp), %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp
@@ -35,6 +40,11 @@ string0: 	.asciz "=========="
 	movq %rsp, %rbp
 	pushq %rdi
 	pushq %rsi
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq -16(%rbp), %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp
@@ -45,6 +55,11 @@ string0: 	.asciz "=========="
 	movq %rsp, %rbp
 	pushq %rdi
 	pushq %rsi
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq -16(%rbp), %rax
+	popq %rax
+	cmpq %r10, %rax
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp
