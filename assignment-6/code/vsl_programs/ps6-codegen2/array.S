@@ -149,6 +149,7 @@ if0:
 	movq %rax, -8(%rbp)
 	jmp endif0
 else0:
+	jmp endwhile1
 endif0:
 	jmp while1
 endwhile1:

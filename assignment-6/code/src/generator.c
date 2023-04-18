@@ -447,10 +447,6 @@ static void generate_while_statement(node_t *statement) {
 
     LABEL("while%ld", local_counter);
 
-    // TODO (2.2):
-    // Implement while loops, similarily to the way if statements were generated.
-    // Remember to make label names unique, and to handle nested while loops.
-
     assert(statement->n_children == 2);
     node_t *relation = statement->children[0];
     node_t *block = statement->children[1];
@@ -493,14 +489,14 @@ static void generate_while_statement(node_t *statement) {
 }
 
 static void generate_break_statement() {
-    // TODO (2.3):
-    // Generate the break statement, jumping out past the end of the innermost while loop.
-    // You can use a global variable to keep track of the innermost call to generate_while_statement().
-    // For the global variable, see `inntermost_while`.
+    while_counter--;
 
-    // TODO
     // When hitting a break, we can merely decrement the innermost while counter, and
-    // jump to the label with the corresponding number of the current value of `innermost_while`.
+    // jump to the label with the corresponding number of the current value of `while_counter`.
+    char end_label[BUFFER_SIZE_IN_BYTES];
+    memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
+    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%ld", while_counter);
+    JMP(end_label);
 }
 
 static void generate_block_statement(node_t *node) {

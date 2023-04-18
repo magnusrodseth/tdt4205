@@ -64,6 +64,7 @@ if1:
 	popq %r10
 	cmpq %rax, %r10
 	jle else1
+	jmp endwhile1
 	jmp endif1
 else1:
 endif1:

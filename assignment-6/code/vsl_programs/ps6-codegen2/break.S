@@ -56,6 +56,7 @@ if0:
 	popq %r10
 	cmpq %rax, %r10
 	jge else0
+	jmp endwhile1
 	jmp endif0
 else0:
 endif0:
@@ -79,6 +80,7 @@ if1:
 	popq %r10
 	cmpq %rax, %r10
 	jne else1
+	jmp endwhile0
 	jmp endif1
 else1:
 endif1:
