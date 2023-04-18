@@ -391,7 +391,7 @@ static void generate_if_statement(node_t *statement) {
     int local_counter = if_counter;
     if_counter++;
 
-    LABEL("if%ld", local_counter);
+    LABEL("if%d", local_counter);
 
     assert(statement->n_children == 2 || statement->n_children == 3);
     node_t *relation = statement->children[0];
@@ -408,7 +408,7 @@ static void generate_if_statement(node_t *statement) {
 
     char else_label[BUFFER_SIZE_IN_BYTES];
     memset(else_label, 0, BUFFER_SIZE_IN_BYTES);
-    snprintf(else_label, BUFFER_SIZE_IN_BYTES, "else%ld", local_counter);
+    snprintf(else_label, BUFFER_SIZE_IN_BYTES, "else%d", local_counter);
 
     if (is_equal) {
         JNE(else_label);
@@ -427,10 +427,10 @@ static void generate_if_statement(node_t *statement) {
     // Jump to end of if statement
     char endif_label[BUFFER_SIZE_IN_BYTES];
     memset(endif_label, 0, BUFFER_SIZE_IN_BYTES);
-    snprintf(endif_label, BUFFER_SIZE_IN_BYTES, "endif%ld", local_counter);
+    snprintf(endif_label, BUFFER_SIZE_IN_BYTES, "endif%d", local_counter);
     JMP(endif_label);
 
-    LABEL("else%ld", local_counter);
+    LABEL("else%d", local_counter);
 
     bool has_else = statement->n_children == 3;
     if (has_else) {
@@ -438,14 +438,14 @@ static void generate_if_statement(node_t *statement) {
         generate_statement(else_statement);
     }
 
-    LABEL("endif%ld", local_counter);
+    LABEL("endif%d", local_counter);
 }
 
 static void generate_while_statement(node_t *statement) {
     int local_counter = while_counter;
     while_counter++;
 
-    LABEL("while%ld", local_counter);
+    LABEL("while%d", local_counter);
 
     assert(statement->n_children == 2);
     node_t *relation = statement->children[0];
@@ -462,7 +462,7 @@ static void generate_while_statement(node_t *statement) {
 
     char end_label[BUFFER_SIZE_IN_BYTES];
     memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
-    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%ld", local_counter);
+    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%d", local_counter);
 
     if (is_equal) {
         JNE(end_label);
@@ -481,11 +481,11 @@ static void generate_while_statement(node_t *statement) {
     // jump back to the beginning of the while loop
     char while_label[BUFFER_SIZE_IN_BYTES];
     memset(while_label, 0, BUFFER_SIZE_IN_BYTES);
-    snprintf(while_label, BUFFER_SIZE_IN_BYTES, "while%ld", local_counter);
+    snprintf(while_label, BUFFER_SIZE_IN_BYTES, "while%d", local_counter);
     JMP(while_label);
 
     // End of while loop, and continuation of program flow
-    LABEL("endwhile%ld", local_counter);
+    LABEL("endwhile%d", local_counter);
 }
 
 static void generate_break_statement() {
@@ -495,7 +495,7 @@ static void generate_break_statement() {
     // jump to the label with the corresponding number of the current value of `while_counter`.
     char end_label[BUFFER_SIZE_IN_BYTES];
     memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
-    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%ld", while_counter);
+    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%d", while_counter);
     JMP(end_label);
 }
 
