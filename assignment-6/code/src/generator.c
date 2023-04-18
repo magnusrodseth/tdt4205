@@ -39,6 +39,22 @@ static int while_counter = 0;
  */
 static int if_counter = 0;
 
+static bool is_less_than_relation(const char *str) {
+    return strcmp(str, "<") == 0;
+}
+
+static bool is_greater_than_relation(const char *str) {
+    return strcmp(str, ">") == 0;
+}
+
+static bool is_equal_relation(const char *str) {
+    return strcmp(str, "=") == 0;
+}
+
+static bool is_not_equal_relation(const char *str) {
+    return strcmp(str, "!=") == 0;
+}
+
 static symbol_t *get_topmost_function() {
     symbol_t *first_function = NULL;
     for (size_t i = 0; i < global_symbols->n_symbols; i++) {
@@ -389,22 +405,6 @@ static void generate_relation(node_t *relation) {
     POPQ(R10);
     // Compare left and right
     CMPQ(RAX, R10);
-}
-
-static bool is_less_than_relation(const char *str) {
-    return strcmp(str, "<") == 0;
-}
-
-static bool is_greater_than_relation(const char *str) {
-    return strcmp(str, ">") == 0;
-}
-
-static bool is_equal_relation(const char *str) {
-    return strcmp(str, "=") == 0;
-}
-
-static bool is_not_equal_relation(const char *str) {
-    return strcmp(str, "!=") == 0;
 }
 
 static void generate_if_statement(node_t *statement) {
