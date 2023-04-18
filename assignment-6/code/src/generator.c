@@ -499,10 +499,10 @@ static void generate_while_statement(node_t *statement) {
 }
 
 static void generate_break_statement() {
-    while_counter--;
-
     // When hitting a break, we can merely decrement the innermost while counter, and
     // jump to the label with the corresponding number of the current value of `while_counter`.
+    while_counter--;
+
     char end_label[BUFFER_SIZE_IN_BYTES];
     memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
     snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%d", while_counter);
