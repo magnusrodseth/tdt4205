@@ -24,11 +24,30 @@ string4: 	.asciz "="
 	call putchar
 	movq $1, %rax
 	movq %rax, -8(%rbp)
+while0:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $1000, %rax
 	popq %r10
 	cmpq %rax, %r10
+	jge endwhile0
+	leaq strout(%rip), %rdi
+	leaq string1(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $2, %rax
+	popq %r10
+	imulq %r10, %rax
+	movq %rax, -8(%rbp)
+	jmp while0
+endwhile0:
 	leaq strout(%rip), %rdi
 	leaq string2(%rip), %rsi
 	call safe_printf
@@ -36,11 +55,62 @@ string4: 	.asciz "="
 	call putchar
 	movq $1, %rax
 	movq %rax, -8(%rbp)
+while1:
 	movq -8(%rbp), %rax
 	pushq %rax
 	movq $6, %rax
 	popq %r10
 	cmpq %rax, %r10
+	jge endwhile1
+	movq $1, %rax
+	movq %rax, -16(%rbp)
+while2:
+	movq -16(%rbp), %rax
+	pushq %rax
+	movq -8(%rbp), %rax
+	popq %r10
+	cmpq %rax, %r10
+	jge endwhile2
+	movq -16(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	leaq strout(%rip), %rdi
+	leaq string3(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	leaq strout(%rip), %rdi
+	leaq string4(%rip), %rsi
+	call safe_printf
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq -16(%rbp), %rax
+	popq %r10
+	imulq %r10, %rax
+	movq %rax, %rsi
+	leaq intout(%rip), %rdi
+	call safe_printf
+	movq $'\n', %rdi
+	call putchar
+	movq -16(%rbp), %rax
+	pushq %rax
+	movq $1, %rax
+	popq %r10
+	addq %r10, %rax
+	movq %rax, -16(%rbp)
+	jmp while2
+endwhile2:
+	movq -8(%rbp), %rax
+	pushq %rax
+	movq $1, %rax
+	popq %r10
+	addq %r10, %rax
+	movq %rax, -8(%rbp)
+	jmp while1
+endwhile1:
 	movq $0, %rax
 	movq %rbp, %rsp
 	popq %rbp

@@ -442,6 +442,11 @@ static void generate_if_statement(node_t *statement) {
 }
 
 static void generate_while_statement(node_t *statement) {
+    int local_counter = while_counter;
+    while_counter++;
+
+    LABEL("while%ld", local_counter);
+
     // TODO (2.2):
     // Implement while loops, similarily to the way if statements were generated.
     // Remember to make label names unique, and to handle nested while loops.
@@ -452,7 +457,39 @@ static void generate_while_statement(node_t *statement) {
 
     generate_relation(relation);
 
-    // TODO
+    char *data = relation->data;
+
+    bool is_less_than = strcmp(data, "<") == 0;
+    bool is_greater_than = strcmp(data, ">") == 0;
+    bool is_equal = strcmp(data, "=") == 0;
+    bool is_not_equal = strcmp(data, "!=") == 0;
+
+    char end_label[BUFFER_SIZE_IN_BYTES];
+    memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
+    snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%ld", local_counter);
+
+    if (is_equal) {
+        JNE(end_label);
+    } else if (is_not_equal) {
+        JE(end_label);
+    } else if (is_less_than) {
+        JGE(end_label);
+    } else if (is_greater_than) {
+        JLE(end_label);
+    } else {
+        assert(false && "Unknown relation");
+    }
+
+    generate_block_statement(block);
+
+    // jump back to the beginning of the while loop
+    char while_label[BUFFER_SIZE_IN_BYTES];
+    memset(while_label, 0, BUFFER_SIZE_IN_BYTES);
+    snprintf(while_label, BUFFER_SIZE_IN_BYTES, "while%ld", local_counter);
+    JMP(while_label);
+
+    // End of while loop, and continuation of program flow
+    LABEL("endwhile%ld", local_counter);
 }
 
 static void generate_break_statement() {
