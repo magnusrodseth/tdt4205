@@ -18,6 +18,10 @@ static void generate_statement(node_t *node);
 static void generate_main(symbol_t *first);
 static void generate_block_statement(node_t *node);
 static symbol_t *get_topmost_function();
+static bool is_less_than_relation(const char *str);
+static bool is_greater_than_relation(const char *str);
+static bool is_equal_relation(const char *str);
+static bool is_not_equal_relation(const char *str);
 
 /* Global variable used to make the functon currently being generated acessiable from anywhere */
 static symbol_t *current_function;
@@ -387,6 +391,22 @@ static void generate_relation(node_t *relation) {
     CMPQ(RAX, R10);
 }
 
+static bool is_less_than_relation(const char *str) {
+    return strcmp(str, "<") == 0;
+}
+
+static bool is_greater_than_relation(const char *str) {
+    return strcmp(str, ">") == 0;
+}
+
+static bool is_equal_relation(const char *str) {
+    return strcmp(str, "=") == 0;
+}
+
+static bool is_not_equal_relation(const char *str) {
+    return strcmp(str, "!=") == 0;
+}
+
 static void generate_if_statement(node_t *statement) {
     int local_counter = if_counter;
     if_counter++;
@@ -401,22 +421,17 @@ static void generate_if_statement(node_t *statement) {
 
     char *data = relation->data;
 
-    bool is_less_than = strcmp(data, "<") == 0;
-    bool is_greater_than = strcmp(data, ">") == 0;
-    bool is_equal = strcmp(data, "=") == 0;
-    bool is_not_equal = strcmp(data, "!=") == 0;
-
     char else_label[BUFFER_SIZE_IN_BYTES];
     memset(else_label, 0, BUFFER_SIZE_IN_BYTES);
     snprintf(else_label, BUFFER_SIZE_IN_BYTES, "else%d", local_counter);
 
-    if (is_equal) {
+    if (is_equal_relation(data)) {
         JNE(else_label);
-    } else if (is_not_equal) {
+    } else if (is_not_equal_relation(data)) {
         JE(else_label);
-    } else if (is_less_than) {
+    } else if (is_less_than_relation(data)) {
         JGE(else_label);
-    } else if (is_greater_than) {
+    } else if (is_greater_than_relation(data)) {
         JLE(else_label);
     } else {
         assert(false && "Unknown relation");
@@ -455,22 +470,17 @@ static void generate_while_statement(node_t *statement) {
 
     char *data = relation->data;
 
-    bool is_less_than = strcmp(data, "<") == 0;
-    bool is_greater_than = strcmp(data, ">") == 0;
-    bool is_equal = strcmp(data, "=") == 0;
-    bool is_not_equal = strcmp(data, "!=") == 0;
-
     char end_label[BUFFER_SIZE_IN_BYTES];
     memset(end_label, 0, BUFFER_SIZE_IN_BYTES);
     snprintf(end_label, BUFFER_SIZE_IN_BYTES, "endwhile%d", local_counter);
 
-    if (is_equal) {
+    if (is_equal_relation(data)) {
         JNE(end_label);
-    } else if (is_not_equal) {
+    } else if (is_not_equal_relation(data)) {
         JE(end_label);
-    } else if (is_less_than) {
+    } else if (is_less_than_relation(data)) {
         JGE(end_label);
-    } else if (is_greater_than) {
+    } else if (is_greater_than_relation(data)) {
         JLE(end_label);
     } else {
         assert(false && "Unknown relation");
