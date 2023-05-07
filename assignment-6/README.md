@@ -25,3 +25,19 @@ cd vsl_programs
 # Clean, compile the assembly code, and generate the executable
 make clean && make ps6 && make ps6-assemble
 ```
+
+Now you can run executable code based on the demo programs provided.
+
+```sh
+# Navigate to the directory with generated executables
+cd ps6-codegen2
+
+# Run executable code
+./array.out
+./break.out
+./for.out
+./if.out
+./sieve.out
+./simple_if.out
+./while.out
+```
